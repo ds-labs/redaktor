@@ -7,7 +7,7 @@ namespace spec\Redaktor;
 use Exception\InvalidVersionDefinitionException;
 use PhpSpec\ObjectBehavior;
 use Redaktor\InMemoryRegistry;
-use Redaktor\Revision;
+use Redaktor\Version;
 
 /**
  * @see InMemoryRegistry

@@ -1,20 +1,20 @@
 <?php
 
-namespace spec\Redaktor;
+namespace spec\Redaktor\Version;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\RequestInterface;
-use Redaktor\HeaderVersionResolver;
+use Redaktor\Version\HeaderResolver;
 
 /**
- * @see HeaderVersionResolver
+ * @see HeaderResolver
  */
-class HeaderVersionResolverSpec extends ObjectBehavior
+class HeaderResolverSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
         $this->beConstructedWith('foo');
-        $this->shouldHaveType(HeaderVersionResolver::class);
+        $this->shouldHaveType(HeaderResolver::class);
     }
 
     function it_resolves_version(

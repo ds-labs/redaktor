@@ -8,6 +8,7 @@ use Closure;
 use Exception\MutationException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Redaktor\Version\VersionResolver;
 
 final class Editor
 {

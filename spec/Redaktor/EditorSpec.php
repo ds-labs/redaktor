@@ -10,9 +10,9 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Redaktor\Registry;
-use Redaktor\Revision;
 use Redaktor\Editor;
-use Redaktor\VersionResolver;
+use Redaktor\Revision;
+use Redaktor\Version\VersionResolver;
 
 /**
  * @see Editor

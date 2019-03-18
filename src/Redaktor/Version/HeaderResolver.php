@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Redaktor;
+namespace Redaktor\Version;
 
 use Psr\Http\Message\RequestInterface;
 
-final class HeaderVersionResolver implements VersionResolver
+final class HeaderResolver implements VersionResolver
 {
     /**
      * @var string

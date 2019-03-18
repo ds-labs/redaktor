@@ -1,6 +1,6 @@
 <?php
 
-namespace Redaktor;
+namespace Redaktor\Version;
 
 use Psr\Http\Message\RequestInterface;
 

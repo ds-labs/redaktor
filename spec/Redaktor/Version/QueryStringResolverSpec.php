@@ -1,14 +1,13 @@
 <?php
 
-namespace spec\Redaktor;
+namespace spec\Redaktor\Version;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
-use Redaktor\QueryStringVersionResolver;
+use Redaktor\Version\QueryStringResolver;
 
-class QueryStringVersionResolverSpec extends ObjectBehavior
+class QueryStringResolverSpec extends ObjectBehavior
 {
     function let (
         UriInterface $uri,
@@ -19,7 +18,7 @@ class QueryStringVersionResolverSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType(QueryStringVersionResolver::class);
+        $this->shouldHaveType(QueryStringResolver::class);
     }
 
     function it_resolves_not_defined_query_string_parameter_to_null(
