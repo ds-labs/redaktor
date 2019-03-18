@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Redaktor;
 
 use function count;
-use Exception\InvalidVersionDefinitionException;
+use Redaktor\Exception\InvalidVersionDefinitionException;
 
 final class InMemoryRegistry implements Registry
 {

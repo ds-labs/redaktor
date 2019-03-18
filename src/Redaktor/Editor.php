@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Redaktor;
 
 use Closure;
-use Exception\MutationException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Redaktor\Exception\MutationException;
 use Redaktor\Version\VersionResolver;
 
 final class Editor

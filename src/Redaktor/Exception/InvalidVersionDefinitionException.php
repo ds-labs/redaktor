@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace Redaktor\Exception;
 
 use InvalidArgumentException;
 

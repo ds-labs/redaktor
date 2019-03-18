@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace spec\Redaktor;
 
-use Exception\MutationException;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Redaktor\Registry;
 use Redaktor\Editor;
+use Redaktor\Exception\MutationException;
+use Redaktor\Registry;
 use Redaktor\Revision;
 use Redaktor\Version\VersionResolver;
 

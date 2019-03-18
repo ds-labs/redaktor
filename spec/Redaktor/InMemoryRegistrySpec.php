@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace spec\Redaktor;
 
-use Exception\InvalidVersionDefinitionException;
 use PhpSpec\ObjectBehavior;
+use Redaktor\Exception\InvalidVersionDefinitionException;
 use Redaktor\InMemoryRegistry;
-use Redaktor\Version;
 
 /**
  * @see InMemoryRegistry
