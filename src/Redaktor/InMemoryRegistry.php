@@ -37,7 +37,7 @@ final class InMemoryRegistry implements Registry
 
     public function retrieveAll(): array
     {
-        return self::reduce($this->indexedRevisions);
+        return self::flatten($this->indexedRevisions);
     }
 
     public function retrieveSince(string $version): array
@@ -45,10 +45,10 @@ final class InMemoryRegistry implements Registry
         $index = array_search($version, array_keys($this->indexedRevisions), true);
         $slice = array_slice($this->indexedRevisions, $index, count($this->indexedRevisions) - $index);
 
-        return self::reduce($slice);
+        return self::flatten($slice);
     }
 
-    private static function reduce($indexedRevisions): array
+    private static function flatten($indexedRevisions): array
     {
         return array_reduce($indexedRevisions, 'array_merge', []);
     }
