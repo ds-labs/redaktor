@@ -26,7 +26,7 @@ final class InMemoryRegistry implements Registry
             foreach ($revisions as $revision) {
                 if (!$revision instanceof \Closure) {
                     throw new InvalidVersionDefinitionException(
-                        'Revision must be closure.'
+                        'Revision must be defined as a closure.'
                     );
                 }
             }
