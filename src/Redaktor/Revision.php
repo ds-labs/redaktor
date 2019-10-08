@@ -3,6 +3,7 @@
 namespace Redaktor;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 interface Revision
 {
@@ -10,5 +11,5 @@ interface Revision
 
     public function applyToRequest(RequestInterface $request): RequestInterface;
 
-    public function applyToResponse($argument1);
+    public function applyToResponse(ResponseInterface $response): ResponseInterface;
 }
