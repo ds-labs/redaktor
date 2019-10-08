@@ -39,10 +39,13 @@ final class Editor
             ? $this->registry->retrieveAll()
             : $this->registry->retrieveSince($version);
 
-        return array_reduce($revisionFactories, function (RequestInterface $requestToRevise, Closure $revisionFactory) {
-            /** @var Revision $revision */
-            $revision = $revisionFactory();
+        $revisions = array_map(static function (Closure $revisionFactory): Revision {
+            return $revisionFactory();
+        }, $revisionFactories);
 
+        $revisions = $this->squashRevisions($revisions);
+
+        return array_reduce($revisions, function (RequestInterface $requestToRevise, Revision $revision) {
             if ($revision->isApplicable($requestToRevise)) {
                 $currentRequest = $revision->applyToRequest($requestToRevise);
 
@@ -84,5 +87,30 @@ final class Editor
         }
 
         return $lastResponse;
+    }
+
+    /**
+     * @param Revision[] $revisions
+     *
+     * @return Revision[]
+     *
+     */
+    private function squashRevisions(array $revisions): array
+    {
+        // @todo Ensure initial revision does not implement `Supersedes` interface.
+
+        $initial = array_shift($revisions);
+        return array_reduce($revisions, static function (array $squashedRevisions, Revision $currentRevision): array {
+            /** @var Supersedes $currentRevision */
+            if ($currentRevision instanceof Supersedes
+                && $currentRevision->supersedes($squashedRevisions[count($squashedRevisions)-1])
+            ) {
+                $squashedRevisions[count($squashedRevisions)-1] = $currentRevision;
+            } else {
+                $squashedRevisions[] = $currentRevision;
+            }
+
+            return $squashedRevisions;
+        }, [$initial]);
     }
 }

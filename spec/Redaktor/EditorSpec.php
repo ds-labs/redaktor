@@ -12,6 +12,7 @@ use Redaktor\Editor;
 use Redaktor\Exception\MutationException;
 use Redaktor\Registry;
 use Redaktor\Revision;
+use Redaktor\Supersedes;
 use Redaktor\Version\VersionResolver;
 
 /**
@@ -357,5 +358,38 @@ class EditorSpec extends ObjectBehavior
         $this->shouldThrow(MutationException::class)
             // Act
             ->during('editResponse', [$request, $response]);
+    }
+
+    function it_skips_overridden_revision_while_editing_a_request(
+        Registry $registry,
+        Revision $revisionA,
+        Revision $revisionB,
+        RequestInterface $request
+    ) {
+        // Arrange
+        $revisionB->implement(Supersedes::class);
+        $revisionB->supersedes(Argument::any())->willReturn(true);
+        $revisionB->isApplicable(Argument::any());
+
+        $registry->retrieveAll()->willReturn([
+            function () use ($revisionA): Revision {
+                return $revisionA->getWrappedObject();
+            },
+            function () use ($revisionB): Revision {
+                return $revisionB->getWrappedObject();
+            },
+        ]);
+
+        // Act
+        $this->editRequest($request);
+
+        // Assert
+        $revisionA->isApplicable($request)
+            ->shouldNotHaveBeenCalled();
+        $revisionA->applyToRequest($request)
+            ->shouldNotHaveBeenCalled();
+
+        $revisionB->isApplicable($request)
+            ->shouldHaveBeenCalled();
     }
 }
