@@ -42,7 +42,7 @@ class EditorSpec extends ObjectBehavior
         $registry->retrieveAll()->willReturn([]);
 
         // Act
-        $this->editRequest($request);
+        $this->reviseRequest($request);
 
         // Assert
         $registry->retrieveAll()->shouldHaveBeenCalledOnce();
@@ -59,7 +59,7 @@ class EditorSpec extends ObjectBehavior
         $registry->retrieveSince(Argument::any())->willReturn([]);
 
         // Act
-        $this->editRequest($request);
+        $this->reviseRequest($request);
 
         // Assert
         $registry->retrieveSince('foo')->shouldHaveBeenCalledOnce();
@@ -91,7 +91,7 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $this->editRequest($originalRequest);
+        $this->reviseRequest($originalRequest);
 
         // Assert
         $revisionA->isApplicable($originalRequest)
@@ -127,14 +127,14 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $resultingRequest = $this->editRequest($originalRequest);
+        $revisedRequest = $this->reviseRequest($originalRequest);
 
         // Assert
         $revisionA->applyToRequest($originalRequest)
             ->shouldHaveBeenCalledOnce();
         $revisionB->applyToRequest($requestAfterRevisionA)
             ->shouldHaveBeenCalledOnce();
-        $resultingRequest->shouldBe($requestAfterRevisionB);
+        $revisedRequest->shouldBe($requestAfterRevisionB);
     }
 
     function it_does_not_apply_unapplicable_revisions_to_the_request(
@@ -153,12 +153,12 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $resultingRequest = $this->editRequest($originalRequest);
+        $revisedRequest = $this->reviseRequest($originalRequest);
 
         // Assert
         $revision->applyToRequest(Argument::any())
             ->shouldNotHaveBeenCalled();
-        $resultingRequest->shouldBe($originalRequest);
+        $revisedRequest->shouldBe($originalRequest);
     }
 
     function it_retrieves_revisions_since_resolved_version_to_run_response_through_them(
@@ -172,7 +172,7 @@ class EditorSpec extends ObjectBehavior
         $registry->retrieveSince(Argument::any())->willReturn([]);
 
         // Act
-        $this->editResponse($request, $response);
+        $this->reviseResponse($request, $response);
 
         // Assert
         $registry->retrieveSince('foo')->shouldHaveBeenCalledOnce();
@@ -196,10 +196,10 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $resultingResponse = $this->editResponse($originalRequest, $upToDateResponse);
+        $revisedResponse = $this->reviseResponse($originalRequest, $upToDateResponse);
 
         // Assert
-        $resultingResponse->shouldBe($upToDateResponse);
+        $revisedResponse->shouldBe($upToDateResponse);
         $revision->applyToResponse($upToDateResponse)
             ->shouldNotHaveBeenCalled();
     }
@@ -224,12 +224,12 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $resultingResponse = $this->editResponse($request, $upToDateResponse);
+        $revisedResponse = $this->reviseResponse($request, $upToDateResponse);
         
         // Assert
         $revision->applyToResponse($upToDateResponse)
             ->shouldHaveBeenCalledOnce();
-        $resultingResponse->shouldBe($userExpectedResponse);
+        $revisedResponse->shouldBe($userExpectedResponse);
     }
 
     function it_applies_revisions_to_response_in_reverse_order(
@@ -263,14 +263,14 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $resultingResponse = $this->editResponse($request, $upToDateResponse);
+        $revisedResponse = $this->reviseResponse($request, $upToDateResponse);
 
         // Assert
         $revisionB->applyToResponse($upToDateResponse)
             ->shouldHaveBeenCalledOnce();
         $revisionA->applyToResponse($responseAfterRevisionB)
             ->shouldHaveBeenCalledOnce();
-        $resultingResponse->shouldBe($responseAfterRevisionA);
+        $revisedResponse->shouldBe($responseAfterRevisionA);
     }
 
     function it_uses_last_revised_request_to_check_if_next_revision_is_applicable_to_response(
@@ -305,7 +305,7 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $this->editResponse($upToDateRequest, $upToDateResponse);
+        $this->reviseResponse($upToDateRequest, $upToDateResponse);
 
         // Assert
         $revisionB->isApplicable($upToDateRequest)
@@ -333,7 +333,7 @@ class EditorSpec extends ObjectBehavior
         // Assert
         $this->shouldThrow(MutationException::class)
             // Act
-            ->during('editRequest', [$request]);
+            ->during('reviseRequest', [$request]);
     }
 
     function it_throws_an_exception_if_revision_returns_same_response_instance(
@@ -357,7 +357,7 @@ class EditorSpec extends ObjectBehavior
         // Assert
         $this->shouldThrow(MutationException::class)
             // Act
-            ->during('editResponse', [$request, $response]);
+            ->during('reviseResponse', [$request, $response]);
     }
 
     function it_skips_overridden_revision_while_editing_a_request(
@@ -381,7 +381,7 @@ class EditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $this->editRequest($request);
+        $this->reviseRequest($request);
 
         // Assert
         $revisionA->isApplicable($request)

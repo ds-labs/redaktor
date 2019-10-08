@@ -30,7 +30,7 @@ final class Editor
         $this->versionResolver = $versionResolver;
     }
 
-    public function editRequest(RequestInterface $request): RequestInterface
+    public function reviseRequest(RequestInterface $request): RequestInterface
     {
         $originalRequest = $request;
         $version = $this->versionResolver->resolve($originalRequest);
@@ -60,7 +60,7 @@ final class Editor
         }, $originalRequest);
     }
 
-    public function editResponse(RequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function reviseResponse(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $version = $this->versionResolver->resolve($request);
 
