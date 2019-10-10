@@ -392,4 +392,17 @@ class EditorSpec extends ObjectBehavior
         $revisionB->isApplicable($request)
             ->shouldHaveBeenCalled();
     }
+
+    function it_returns_the_same_request_if_there_are_no_revisions_applicable(
+        Registry $registry,
+        RequestInterface $request
+    ) {
+        // Arrange
+        $registry->retrieveAll()->willReturn([]);
+
+        // Act
+        $this->reviseRequest($request)
+            // Assert
+            ->shouldBe($request);
+    }
 }

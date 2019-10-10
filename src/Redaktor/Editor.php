@@ -97,6 +97,9 @@ final class Editor
      */
     private function squashRevisions(array $revisions): array
     {
+        if (empty($revisions)) {
+            return $revisions;
+        }
         // @todo Ensure initial revision does not implement `Supersedes` interface.
 
         $initial = array_shift($revisions);
