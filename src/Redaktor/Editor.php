@@ -45,7 +45,7 @@ final class Editor
 
         $revisions = $this->squashRevisions($revisions);
 
-        return array_reduce($revisions, function (RequestInterface $requestToRevise, Revision $revision) {
+        return array_reduce($revisions, static function (RequestInterface $requestToRevise, Revision $revision) {
             if ($revision->isApplicable($requestToRevise)) {
                 $currentRequest = $revision->applyToRequest($requestToRevise);
 

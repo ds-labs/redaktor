@@ -77,12 +77,12 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $revisionA->isApplicable(Argument::any())->willReturn(true);
         $revisionA->applyToRequest(Argument::any())->willReturn($requestAfterRevisionA);
-        $revisionAFactory = function () use ($revisionA): Revision {
+        $revisionAFactory = static function () use ($revisionA): Revision {
             return $revisionA->getWrappedObject();
         };
         $revisionB->isApplicable(Argument::any())->willReturn(true);
         $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
-        $revisionBFactory = function () use ($revisionB): Revision {
+        $revisionBFactory = static function () use ($revisionB): Revision {
             return $revisionB->getWrappedObject();
         };
         $registry->retrieveAll()->willReturn([
@@ -111,13 +111,13 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $revisionA->isApplicable(Argument::any())->willReturn(true);
         $revisionA->applyToRequest(Argument::any())->willReturn($requestAfterRevisionA);
-        $revisionAFactory = function () use ($revisionA): Revision {
+        $revisionAFactory = static function () use ($revisionA): Revision {
             return $revisionA->getWrappedObject();
         };
 
         $revisionB->isApplicable(Argument::any())->willReturn(true);
         $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
-        $revisionBFactory = function () use ($revisionB): Revision {
+        $revisionBFactory = static function () use ($revisionB): Revision {
             return $revisionB->getWrappedObject();
         };
 
@@ -144,7 +144,7 @@ class EditorSpec extends ObjectBehavior
     ) {
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(false);
-        $revisionFactory = function () use ($revision): Revision {
+        $revisionFactory = static function () use ($revision): Revision {
             return $revision->getWrappedObject();
         };
 
@@ -187,7 +187,7 @@ class EditorSpec extends ObjectBehavior
     ) {
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(false);
-        $revisionFactory = function () use ($revision): Revision {
+        $revisionFactory = static function () use ($revision): Revision {
             return $revision->getWrappedObject();
         };
 
@@ -216,7 +216,7 @@ class EditorSpec extends ObjectBehavior
         $revision->isApplicable($request)->willReturn(true);
         $revision->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
         $revision->applyToResponse(Argument::any())->willReturn($userExpectedResponse);
-        $revisionFactory = function () use ($revision): Revision {
+        $revisionFactory = static function () use ($revision): Revision {
             return $revision->getWrappedObject();
         };
         $registry->retrieveAll()->willReturn([
@@ -246,14 +246,14 @@ class EditorSpec extends ObjectBehavior
         $revisionA->isApplicable(Argument::any())->willReturn(true);
         $revisionA->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
         $revisionA->applyToResponse(Argument::any())->willReturn($responseAfterRevisionA);
-        $revisionAFactory = function () use ($revisionA): Revision {
+        $revisionAFactory = static function () use ($revisionA): Revision {
             return $revisionA->getWrappedObject();
         };
 
         $revisionB->isApplicable(Argument::any())->willReturn(true);
         $revisionB->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
         $revisionB->applyToResponse(Argument::any())->willReturn($responseAfterRevisionB);
-        $revisionBFactory = function () use ($revisionB): Revision {
+        $revisionBFactory = static function () use ($revisionB): Revision {
             return $revisionB->getWrappedObject();
         };
 
@@ -288,14 +288,14 @@ class EditorSpec extends ObjectBehavior
         $revisionA->isApplicable(Argument::any())->willReturn(true);
         $revisionA->applyToRequest(Argument::any())->willReturn($placeHolderRequest);
         $revisionA->applyToResponse(Argument::any())->willReturn($responseAfterRevisionA);
-        $revisionAFactory = function () use ($revisionA): Revision {
+        $revisionAFactory = static function () use ($revisionA): Revision {
             return $revisionA->getWrappedObject();
         };
 
         $revisionB->isApplicable(Argument::any())->willReturn(true);
         $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
         $revisionB->applyToResponse(Argument::any())->willReturn($responseAfterRevisionB);
-        $revisionBFactory = function () use ($revisionB): Revision {
+        $revisionBFactory = static function () use ($revisionB): Revision {
             return $revisionB->getWrappedObject();
         };
 
@@ -322,7 +322,7 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(true);
         $revision->applyToRequest(Argument::any())->willReturnArgument(0);
-        $revisionFactory = function () use ($revision): Revision {
+        $revisionFactory = static function () use ($revision): Revision {
             return $revision->getWrappedObject();
         };
 
@@ -346,7 +346,7 @@ class EditorSpec extends ObjectBehavior
         $revision->isApplicable(Argument::any())->willReturn(true);
         $revision->applyToRequest(Argument::any())->willReturn($request);
         $revision->applyToResponse(Argument::any())->willReturn($response);
-        $revisionFactory = function () use ($revision): Revision {
+        $revisionFactory = static function () use ($revision): Revision {
             return $revision->getWrappedObject();
         };
 
@@ -372,10 +372,10 @@ class EditorSpec extends ObjectBehavior
         $revisionB->isApplicable(Argument::any());
 
         $registry->retrieveAll()->willReturn([
-            function () use ($revisionA): Revision {
+            static function () use ($revisionA): Revision {
                 return $revisionA->getWrappedObject();
             },
-            function () use ($revisionB): Revision {
+            static function () use ($revisionB): Revision {
                 return $revisionB->getWrappedObject();
             },
         ]);
