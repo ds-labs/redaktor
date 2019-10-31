@@ -7,6 +7,7 @@ namespace spec\Redaktor;
 use PhpSpec\ObjectBehavior;
 use Redaktor\Exception\InvalidVersionDefinitionException;
 use Redaktor\InMemoryRegistry;
+use Redaktor\Revision;
 
 /**
  * @see InMemoryRegistry
@@ -36,11 +37,11 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = function(): Revision {},
-                $revisionB = function(): Revision {},
+                $revisionA = static function(): Revision {},
+                $revisionB = static function(): Revision {},
             ],
             'bar' => [
-                $revisionC = function(): Revision {},
+                $revisionC = static function(): Revision {},
             ],
         ]);
 
@@ -62,14 +63,14 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = function(): Revision {},
+                $revisionA = static function(): Revision {},
             ],
             'bar' => [
-                $revisionB = function(): Revision {},
-                $revisionC = function(): Revision {},
+                $revisionB = static function(): Revision {},
+                $revisionC = static function(): Revision {},
             ],
             'baz' => [
-                $revisionD = function(): Revision {},
+                $revisionD = static function(): Revision {},
             ],
         ]);
 

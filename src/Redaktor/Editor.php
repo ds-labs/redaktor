@@ -43,7 +43,7 @@ final class Editor
             return $revisionFactory();
         }, $revisionFactories);
 
-        $revisions = $this->squashRevisions($revisions);
+        $revisions = self::squashRevisions($revisions);
 
         return array_reduce($revisions, static function (RequestInterface $requestToRevise, Revision $revision) {
             if ($revision->isApplicable($requestToRevise)) {
@@ -93,9 +93,8 @@ final class Editor
      * @param Revision[] $revisions
      *
      * @return Revision[]
-     *
      */
-    private function squashRevisions(array $revisions): array
+    private static function squashRevisions(array $revisions): array
     {
         if (empty($revisions)) {
             return $revisions;

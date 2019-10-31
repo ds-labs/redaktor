@@ -9,10 +9,8 @@ use Redaktor\Version\QueryStringResolver;
 
 class QueryStringResolverSpec extends ObjectBehavior
 {
-    function let (
-        UriInterface $uri,
-        RequestInterface $request
-    ) {
+    function let ()
+    {
         $this->beConstructedWith('foo');
     }
 

@@ -14,7 +14,7 @@ final class InMemoryRegistry implements Registry
      */
     private $indexedRevisions;
 
-    public function __construct($indexedRevisions = [])
+    public function __construct(array $indexedRevisions = [])
     {
         foreach ($indexedRevisions as $version => $revisions) {
             if (!$revisions) {
@@ -48,7 +48,7 @@ final class InMemoryRegistry implements Registry
         return self::flatten($slice);
     }
 
-    private static function flatten($indexedRevisions): array
+    private static function flatten(array $indexedRevisions): array
     {
         return array_reduce($indexedRevisions, 'array_merge', []);
     }
