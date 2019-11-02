@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace spec\Redaktor;
 
+use Closure;
 use PhpSpec\ObjectBehavior;
+use PhpSpec\Wrapper\Collaborator;
 use Redaktor\Exception\InvalidVersionDefinitionException;
 use Redaktor\InMemoryRegistry;
 use Redaktor\Revision;
@@ -33,15 +35,18 @@ class InMemoryRegistrySpec extends ObjectBehavior
     }
 
     function it_returns_all_revisions_in_the_registry(
+        Revision $revisionA,
+        Revision $revisionB,
+        Revision $revisionC
     ) {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = static function(): Revision {},
-                $revisionB = static function(): Revision {},
+                self::makeRevisionFactory($revisionA),
+                self::makeRevisionFactory($revisionB),
             ],
             'bar' => [
-                $revisionC = static function(): Revision {},
+                self::makeRevisionFactory($revisionC),
             ],
         ]);
 
@@ -58,19 +63,23 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
     }
 
-    function it_returns_revisions_since_a_given_version_onwards()
-{
+    function it_returns_revisions_since_a_given_version_onwards(
+        Revision $revisionA,
+        Revision $revisionB,
+        Revision $revisionC,
+        Revision $revisionD
+    ) {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = static function(): Revision {},
+                self::makeRevisionFactory($revisionA),
             ],
             'bar' => [
-                $revisionB = static function(): Revision {},
-                $revisionC = static function(): Revision {},
+                self::makeRevisionFactory($revisionB),
+                self::makeRevisionFactory($revisionC),
             ],
             'baz' => [
-                $revisionD = static function(): Revision {},
+                self::makeRevisionFactory($revisionD),
             ],
         ]);
 
@@ -79,6 +88,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
 
         // Assert
         $revisions->shouldBeArray();
+        $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
             $revisionB,
             $revisionC,
@@ -112,5 +122,12 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldThrow(InvalidVersionDefinitionException::class)
             // Act
             ->duringInstantiation();
+    }
+
+    private static function makeRevisionFactory(Collaborator $revision): Closure
+    {
+        return static function() use ($revision): Revision {
+            return $revision->getWrappedObject();
+        };
     }
 }

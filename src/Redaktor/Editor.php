@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Redaktor;
 
-use Closure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Redaktor\Exception\MutationException;
@@ -35,13 +34,9 @@ final class Editor
         $originalRequest = $request;
         $version = $this->versionResolver->resolve($originalRequest);
 
-        $revisionFactories = (null === $version)
+        $revisions = (null === $version)
             ? $this->registry->retrieveAll()
             : $this->registry->retrieveSince($version);
-
-        $revisions = array_map(static function (Closure $revisionFactory): Revision {
-            return $revisionFactory();
-        }, $revisionFactories);
 
         $revisions = self::squashRevisions($revisions);
 
@@ -64,15 +59,14 @@ final class Editor
     {
         $version = $this->versionResolver->resolve($request);
 
-        $revisionFactories = (null === $version)
+        $revisions = (null === $version)
             ? $this->registry->retrieveAll()
             : $this->registry->retrieveSince($version);
 
         $currentRequest = $request;
         $lastResponse = $response;
-        foreach (array_reverse($revisionFactories) as $revisionFactory) {
-            /** @var Revision $revision */
-            $revision = $revisionFactory();
+        /** @var Revision $revision */
+        foreach (array_reverse($revisions) as $revision) {
 
             if ($revision->isApplicable($currentRequest)) {
                 $currentResponse = $revision->applyToResponse($lastResponse);
