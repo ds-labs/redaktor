@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Redaktor\Exception;
 
 use Redaktor\Revision;
