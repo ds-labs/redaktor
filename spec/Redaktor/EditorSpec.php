@@ -9,6 +9,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Redaktor\Editor;
+use Redaktor\EditorInterface;
 use Redaktor\Exception\MutationException;
 use Redaktor\Registry;
 use Redaktor\Revision;
@@ -29,7 +30,7 @@ class EditorSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType(Editor::class);
+        $this->shouldHaveType(EditorInterface::class);
     }
 
     function it_retrieves_all_revisions_from_registry_if_no_version_specified(

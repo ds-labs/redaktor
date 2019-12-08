@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Redaktor\Exception\MutationException;
 use Redaktor\Version\VersionResolver;
 
-final class Editor
+final class Editor implements EditorInterface
 {
     /**
      * @var Registry
