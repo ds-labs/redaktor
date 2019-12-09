@@ -6,8 +6,8 @@ namespace spec\Redaktor;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Redaktor\Editor;
 use Redaktor\EditorInterface;
 use Redaktor\Exception\MutationException;
@@ -36,7 +36,7 @@ class EditorSpec extends ObjectBehavior
     function it_retrieves_all_revisions_from_registry_if_no_version_specified(
         VersionResolver $versionResolver,
         Registry $registry,
-        RequestInterface $request
+        ServerRequestInterface $request
     ) {
         // Arrange
         $versionResolver->resolve($request)->willReturn(null);
@@ -53,7 +53,7 @@ class EditorSpec extends ObjectBehavior
     function it_retrieves_revisions_since_resolved_version_to_run_request_through_them(
         VersionResolver $versionResolver,
         Registry $registry,
-        RequestInterface $request
+        ServerRequestInterface $request
     ) {
         // Arrange
         $versionResolver->resolve($request)->willReturn('foo');
@@ -69,11 +69,11 @@ class EditorSpec extends ObjectBehavior
 
     function it_uses_last_revised_request_to_check_if_next_revision_is_applicable(
         Revision $revisionA,
-        RequestInterface $requestAfterRevisionA,
+        ServerRequestInterface $requestAfterRevisionA,
         Revision $revisionB,
-        RequestInterface $requestAfterRevisionB,
+        ServerRequestInterface $requestAfterRevisionB,
         Registry $registry,
-        RequestInterface $originalRequest
+        ServerRequestInterface $originalRequest
     ) {
         // Arrange
         $revisionA->isApplicable(Argument::any())->willReturn(true);
@@ -98,9 +98,9 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_applies_multiple_revisions_to_the_request(
-        RequestInterface $originalRequest,
-        RequestInterface $requestAfterRevisionA,
-        RequestInterface $requestAfterRevisionB,
+        ServerRequestInterface $originalRequest,
+        ServerRequestInterface $requestAfterRevisionA,
+        ServerRequestInterface $requestAfterRevisionB,
         Registry $registry,
         Revision $revisionA,
         Revision $revisionB
@@ -129,7 +129,7 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_does_not_apply_unapplicable_revisions_to_the_request(
-        RequestInterface $originalRequest,
+        ServerRequestInterface $originalRequest,
         Registry $registry,
         Revision $revision
     ) {
@@ -152,7 +152,7 @@ class EditorSpec extends ObjectBehavior
     function it_retrieves_revisions_since_resolved_version_to_run_response_through_them(
         VersionResolver $versionResolver,
         Registry $registry,
-        RequestInterface $request,
+        ServerRequestInterface $request,
         ResponseInterface $response
     ) {
         // Arrange
@@ -169,7 +169,7 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_does_not_apply_unapplicable_revisions_to_the_response(
-        RequestInterface $originalRequest,
+        ServerRequestInterface $originalRequest,
         Registry $registry,
         Revision $revision,
         ResponseInterface $upToDateResponse
@@ -192,11 +192,11 @@ class EditorSpec extends ObjectBehavior
 
     function it_applies_applicable_revisions_to_response(
         Revision $revision,
-        RequestInterface $request,
+        ServerRequestInterface $request,
         ResponseInterface $upToDateResponse,
         ResponseInterface $userExpectedResponse,
         Registry $registry,
-        RequestInterface $requestPlaceholder
+        ServerRequestInterface $requestPlaceholder
     ) {
         // Arrange
         $revision->isApplicable($request)->willReturn(true);
@@ -209,7 +209,7 @@ class EditorSpec extends ObjectBehavior
 
         // Act
         $revisedResponse = $this->reviseResponse($request, $upToDateResponse);
-        
+
         // Assert
         $revision->applyToResponse($upToDateResponse)
             ->shouldHaveBeenCalledOnce();
@@ -220,11 +220,11 @@ class EditorSpec extends ObjectBehavior
         Revision $revisionA,
         Revision $revisionB,
         Registry $registry,
-        RequestInterface $request,
+        ServerRequestInterface $request,
         ResponseInterface $upToDateResponse,
         ResponseInterface $responseAfterRevisionB,
         ResponseInterface $responseAfterRevisionA,
-        RequestInterface $requestPlaceholder
+        ServerRequestInterface $requestPlaceholder
     ) {
         // Arrange
         $revisionA->isApplicable(Argument::any())->willReturn(true);
@@ -255,12 +255,12 @@ class EditorSpec extends ObjectBehavior
         Registry $registry,
         Revision $revisionA,
         Revision $revisionB,
-        RequestInterface $upToDateRequest,
+        ServerRequestInterface $upToDateRequest,
         ResponseInterface $upToDateResponse,
-        RequestInterface $requestAfterRevisionB,
+        ServerRequestInterface $requestAfterRevisionB,
         ResponseInterface $responseAfterRevisionB,
         ResponseInterface $responseAfterRevisionA,
-        RequestInterface $placeHolderRequest
+        ServerRequestInterface $placeHolderRequest
     ) {
         // Arrange
         $revisionA->isApplicable(Argument::any())->willReturn(true);
@@ -289,7 +289,7 @@ class EditorSpec extends ObjectBehavior
     function it_throws_an_exception_if_revision_returns_same_request_instance(
         Revision $revision,
         Registry $registry,
-        RequestInterface $request
+        ServerRequestInterface $request
     ) {
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(true);
@@ -308,7 +308,7 @@ class EditorSpec extends ObjectBehavior
     function it_throws_an_exception_if_revision_returns_same_response_instance(
         Revision $revision,
         Registry $registry,
-        RequestInterface $request,
+        ServerRequestInterface $request,
         ResponseInterface $response
     ) {
         // Arrange
@@ -330,7 +330,7 @@ class EditorSpec extends ObjectBehavior
         Registry $registry,
         Revision $revisionA,
         Revision $revisionB,
-        RequestInterface $request
+        ServerRequestInterface $request
     ) {
         // Arrange
         $revisionB->implement(Supersedes::class);
@@ -357,7 +357,7 @@ class EditorSpec extends ObjectBehavior
 
     function it_returns_the_same_request_if_there_are_no_revisions_applicable(
         Registry $registry,
-        RequestInterface $request
+        ServerRequestInterface $request
     ) {
         // Arrange
         $registry->retrieveAll()->willReturn([]);

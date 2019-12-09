@@ -6,6 +6,7 @@ namespace Redaktor;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Redaktor\Exception\MutationException;
 use Redaktor\Version\VersionResolver;
 
@@ -29,7 +30,7 @@ final class Editor implements EditorInterface
         $this->versionResolver = $versionResolver;
     }
 
-    public function reviseRequest(RequestInterface $request): RequestInterface
+    public function reviseRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         $originalRequest = $request;
         $version = $this->versionResolver->resolve($originalRequest);
@@ -55,7 +56,7 @@ final class Editor implements EditorInterface
         }, $originalRequest);
     }
 
-    public function reviseResponse(RequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function reviseResponse(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $version = $this->versionResolver->resolve($request);
 
