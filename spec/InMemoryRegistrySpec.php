@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace spec\Redaktor;
+namespace spec\DSLabs\Redaktor;
 
 use Closure;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
-use Redaktor\Exception\InvalidVersionDefinitionException;
-use Redaktor\InMemoryRegistry;
-use Redaktor\Revision;
+use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\InMemoryRegistry;
+use DSLabs\Redaktor\Revision;
 
 /**
  * @see InMemoryRegistry

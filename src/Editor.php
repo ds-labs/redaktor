@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Redaktor;
+namespace DSLabs\Redaktor;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Redaktor\Exception\MutationException;
-use Redaktor\Version\VersionResolver;
+use DSLabs\Redaktor\Exception\MutationException;
+use DSLabs\Redaktor\Version\VersionResolver;
 
 final class Editor implements EditorInterface
 {

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace spec\Redaktor;
+namespace spec\DSLabs\Redaktor;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Redaktor\Editor;
-use Redaktor\EditorInterface;
-use Redaktor\Exception\MutationException;
-use Redaktor\Registry;
-use Redaktor\Revision;
-use Redaktor\Supersedes;
-use Redaktor\Version\VersionResolver;
+use DSLabs\Redaktor\Editor;
+use DSLabs\Redaktor\EditorInterface;
+use DSLabs\Redaktor\Exception\MutationException;
+use DSLabs\Redaktor\Registry;
+use DSLabs\Redaktor\Revision;
+use DSLabs\Redaktor\Supersedes;
+use DSLabs\Redaktor\Version\VersionResolver;
 
 /**
  * @see Editor

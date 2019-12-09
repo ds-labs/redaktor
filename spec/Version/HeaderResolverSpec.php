@@ -1,10 +1,10 @@
 <?php
 
-namespace spec\Redaktor\Version;
+namespace spec\DSLabs\Redaktor\Version;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\RequestInterface;
-use Redaktor\Version\HeaderResolver;
+use DSLabs\Redaktor\Version\HeaderResolver;
 
 /**
  * @see HeaderResolver

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Redaktor;
+namespace DSLabs\Redaktor;
 
 use Closure;
 use function count;
-use Redaktor\Exception\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 
 final class InMemoryRegistry implements Registry
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Redaktor;
+namespace DSLabs\Redaktor;
 
 interface Registry
 {

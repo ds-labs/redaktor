@@ -1,11 +1,11 @@
 <?php
 
-namespace spec\Redaktor\Version;
+namespace spec\DSLabs\Redaktor\Version;
 
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
-use Redaktor\Version\QueryStringResolver;
+use DSLabs\Redaktor\Version\QueryStringResolver;
 
 class QueryStringResolverSpec extends ObjectBehavior
 {
