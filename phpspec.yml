@@ -1,6 +1,1 @@
-suites:
-    default:
-        src_path: '%paths.config%/src'
-        spec_path: '%paths.config%'
-        namespace: DSLabs\Redaktor
-        psr4_prefix: DSLabs\Redaktor
+composer_suite_detection: true

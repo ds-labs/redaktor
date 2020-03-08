@@ -4,110 +4,78 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
+use DSLabs\Redaktor\Exception\MutationException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Version\VersionResolver;
 
-final class Editor implements EditorInterface
+/**
+ * Given a Brief is able to revise a Request and/or a Response.
+ */
+final class Editor
 {
     /**
-     * @var Registry
+     * @var Brief
      */
-    private $registry;
+    private $brief;
 
-    /**
-     * @var VersionResolver
-     */
-    private $versionResolver;
+    private $applicableRevisions = [];
 
     public function __construct(
-        Registry $registry,
-        VersionResolver $versionResolver
+        Brief $brief
     ) {
-        $this->registry = $registry;
-        $this->versionResolver = $versionResolver;
-    }
-
-    public function reviseRequest(ServerRequestInterface $request): ServerRequestInterface
-    {
-        $originalRequest = $request;
-        $version = $this->versionResolver->resolve($originalRequest);
-
-        $revisions = (null === $version)
-            ? $this->registry->retrieveAll()
-            : $this->registry->retrieveSince($version);
-
-        $revisions = self::squashRevisions($revisions);
-
-        return array_reduce($revisions, static function (RequestInterface $requestToRevise, Revision $revision) {
-            if ($revision->isApplicable($requestToRevise)) {
-                $currentRequest = $revision->applyToRequest($requestToRevise);
-
-                if ($currentRequest === $requestToRevise) {
-                    throw MutationException::inRevision($revision);
-                }
-
-                return $currentRequest;
-            }
-
-            return $requestToRevise;
-        }, $originalRequest);
-    }
-
-    public function reviseResponse(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
-    {
-        $version = $this->versionResolver->resolve($request);
-
-        $revisions = (null === $version)
-            ? $this->registry->retrieveAll()
-            : $this->registry->retrieveSince($version);
-
-        $currentRequest = $request;
-        $lastResponse = $response;
-        /** @var Revision $revision */
-        foreach (array_reverse($revisions) as $revision) {
-
-            if ($revision->isApplicable($currentRequest)) {
-                $currentResponse = $revision->applyToResponse($lastResponse);
-                $currentRequest = $revision->applyToRequest($currentRequest);
-
-                if ($lastResponse === $currentResponse) {
-                    throw MutationException::inRevision($revision);
-                }
-
-                $lastResponse = $currentResponse;
-            }
-        }
-
-        return $lastResponse;
+        $this->brief = $brief;
     }
 
     /**
-     * @param Revision[] $revisions
-     *
-     * @return Revision[]
+     * Revise the Request given in the Brief
      */
-    private static function squashRevisions(array $revisions): array
+    public function reviseRequest(): ServerRequestInterface
     {
-        if (empty($revisions)) {
-            return $revisions;
-        }
-        // @todo Ensure initial revision does not implement `Supersedes` interface.
-
-        $initial = array_shift($revisions);
-        return array_reduce($revisions, static function (array $squashedRevisions, Revision $currentRevision): array {
-            /** @var Supersedes $currentRevision */
-            if ($currentRevision instanceof Supersedes
-                && $currentRevision->supersedes($squashedRevisions[count($squashedRevisions)-1])
+        return array_reduce(
+            $this->brief->revisions(),
+            function(
+                RequestInterface $request,
+                Revision $revision
             ) {
-                $squashedRevisions[count($squashedRevisions)-1] = $currentRevision;
-            } else {
-                $squashedRevisions[] = $currentRevision;
-            }
+                if (!$revision->isApplicable($request)) {
+                    return $request;
+                }
 
-            return $squashedRevisions;
-        }, [$initial]);
+                $this->applicableRevisions[] = $revision;
+                $revisedRequest = $revision->applyToRequest($request);
+                if ($revisedRequest === $request) {
+                    throw MutationException::inRevision($revision);
+                }
+
+                return $revisedRequest;
+
+            },
+            $this->brief->request()
+        );
+    }
+
+    /**
+     * Revise the given Response based on the applicable revisions for
+     * the Request indicated in the Brief.
+     */
+    public function reviseResponse(ResponseInterface $response): ResponseInterface
+    {
+        // @todo: check if the applicable revisions are already known.
+        $this->reviseRequest();
+
+        return array_reduce(
+            array_reverse($this->applicableRevisions),
+            static function(ResponseInterface $response, Revision $revision) {
+                $revisedResponse = $revision->applyToResponse($response);
+
+                if ($revisedResponse === $response) {
+                    throw MutationException::inRevision($revision);
+                }
+
+                return $revisedResponse;
+            },
+            $response
+        );
     }
 }

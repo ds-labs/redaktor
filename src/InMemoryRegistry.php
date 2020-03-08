@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use Closure;
-use function count;
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 
+/**
+ * List of in-memory registered revisions.
+ */
 final class InMemoryRegistry implements Registry
 {
     /**
@@ -15,7 +17,59 @@ final class InMemoryRegistry implements Registry
      */
     private $indexedRevisionFactories;
 
-    public function __construct(array $indexedRevisionFactories = [])
+    /**
+     * Receives a list of revisions indexed by its version. Expected format:
+     * [
+     *      '2020-02-23' => [
+     *          static function () {
+     *              return new RenameResourceRevision();
+     *          },
+     *          static function () {
+     *              return new GzipCompressionRevision();
+     *          },
+     *      ],
+     *      '2020-03-13' => [
+     *          static function () {
+     *              return new RemoveResourceRevision();
+     *          },
+     *      ]
+     * ]
+     */
+    public function __construct(
+        array $indexedRevisionFactories = []
+    ) {
+        self::validate($indexedRevisionFactories);
+
+        $this->indexedRevisionFactories = $indexedRevisionFactories;
+    }
+
+    /**
+     * Retrieves a collection of all registered revisions.
+     *
+     * @return array|Closure[]
+     */
+    public function retrieveAll(): array
+    {
+        return self::flatten($this->indexedRevisionFactories);
+    }
+
+    /**
+     * Retrieves a collection of the revisions since the given $version.
+     *
+     * @return array|Closure[]
+     */
+    public function retrieveSince(string $version): array
+    {
+        $index = array_search($version, array_keys($this->indexedRevisionFactories), true);
+        $applicableRevisionsFactories = array_slice(
+            $this->indexedRevisionFactories,
+            $index
+        );
+
+        return self::flatten($applicableRevisionsFactories);
+    }
+
+    private static function validate(array $indexedRevisionFactories): void
     {
         foreach ($indexedRevisionFactories as $version => $revisionFactories) {
             if (!$revisionFactories) {
@@ -27,50 +81,15 @@ final class InMemoryRegistry implements Registry
             foreach ($revisionFactories as $revisionFactory) {
                 if (!$revisionFactory instanceof Closure) {
                     throw new InvalidVersionDefinitionException(
-                        'Revision must be defined as a closure.'
+                        'Revision Factory must be defined as a Closure. Got: ' . gettype($revisionFactory) . '.'
                     );
                 }
             }
         }
-
-        $this->indexedRevisionFactories = $indexedRevisionFactories;
-    }
-
-    public function retrieveAll(): array
-    {
-        return self::instantiate(
-            self::flatten($this->indexedRevisionFactories)
-        );
-    }
-
-    public function retrieveSince(string $version): array
-    {
-        $index = array_search($version, array_keys($this->indexedRevisionFactories), true);
-        $applicableRevisionsFactories = array_slice(
-            $this->indexedRevisionFactories,
-            $index,
-            count($this->indexedRevisionFactories) - $index
-        );
-
-        return self::instantiate(
-            self::flatten($applicableRevisionsFactories)
-        );
     }
 
     /**
-     * @param array $revisionFactories
-     *
-     * @return Revision[]
-     */
-    private static function instantiate(array $revisionFactories): array
-    {
-        return array_map(static function (Closure $revisionFactory) {
-            return $revisionFactory();
-        }, $revisionFactories);
-    }
-
-    /**
-     * @param array $indexedRevisionFactories
+     * @param array[] $indexedRevisionFactories
      *
      * @return Closure[]
      */

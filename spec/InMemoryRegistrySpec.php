@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace spec\DSLabs\Redaktor;
 
-use Closure;
-use PhpSpec\ObjectBehavior;
-use PhpSpec\Wrapper\Collaborator;
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\InMemoryRegistry;
-use DSLabs\Redaktor\Revision;
+use PhpSpec\ObjectBehavior;
 
 /**
  * @see InMemoryRegistry
@@ -21,7 +18,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldHaveType(InMemoryRegistry::class);
     }
 
-    function it_returns_an_empty_array_of_revisions_if_the_resgistry_is_empty()
+    function it_retrieves_an_empty_array_of_factories_if_the_resgistry_is_empty()
     {
         // Arrange
         $this->beConstructedWith([]);
@@ -34,19 +31,16 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldHaveCount(0);
     }
 
-    function it_returns_all_revisions_in_the_registry(
-        Revision $revisionA,
-        Revision $revisionB,
-        Revision $revisionC
-    ) {
+    function it_retrieves_all_factories_in_the_registry()
+    {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                self::makeRevisionFactory($revisionA),
-                self::makeRevisionFactory($revisionB),
+                $factoryA = static function () {},
+                $factoryB = static function () {},
             ],
             'bar' => [
-                self::makeRevisionFactory($revisionC),
+                $factoryC = static function () {},
             ],
         ]);
 
@@ -57,29 +51,25 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldBeArray();
         $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
-            $revisionA,
-            $revisionB,
-            $revisionC,
+            $factoryA,
+            $factoryB,
+            $factoryC,
         ]);
     }
 
-    function it_returns_revisions_since_a_given_version_onwards(
-        Revision $revisionA,
-        Revision $revisionB,
-        Revision $revisionC,
-        Revision $revisionD
-    ) {
+    function it_retrieves_factories_since_a_given_version()
+    {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                self::makeRevisionFactory($revisionA),
+                $factoryA = static function () {},
             ],
             'bar' => [
-                self::makeRevisionFactory($revisionB),
-                self::makeRevisionFactory($revisionC),
+                $factoryB = static function () {},
+                $factoryC = static function () {},
             ],
             'baz' => [
-                self::makeRevisionFactory($revisionD),
+                $factoryD = static function () {},
             ],
         ]);
 
@@ -90,13 +80,13 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldBeArray();
         $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
-            $revisionB,
-            $revisionC,
-            $revisionD,
+            $factoryB,
+            $factoryC,
+            $factoryD,
         ]);
     }
 
-    function it_throws_an_InvalidVersionDefinitionException_if_instantiated_with_an_empty_version_definition()
+    function it_disallows_empty_version_definitions()
     {
         // Arrange
         $this->beConstructedWith([
@@ -104,12 +94,12 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Assert
-       $this->shouldThrow(InvalidVersionDefinitionException::class)
-           // Act
-           ->duringInstantiation();
+        $this->shouldThrow(InvalidVersionDefinitionException::class)
+            // Act
+            ->duringInstantiation();
     }
 
-    function it_throws_an_InvalidVersionDefinitionException_if_revision_is_not_a_closure()
+    function it_disallows_a_string_as_a_revision()
     {
         // Arrange
         $this->beConstructedWith([
@@ -122,12 +112,5 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldThrow(InvalidVersionDefinitionException::class)
             // Act
             ->duringInstantiation();
-    }
-
-    private static function makeRevisionFactory(Collaborator $revision): Closure
-    {
-        return static function() use ($revision): Revision {
-            return $revision->getWrappedObject();
-        };
     }
 }

@@ -4,367 +4,212 @@ declare(strict_types=1);
 
 namespace spec\DSLabs\Redaktor;
 
+use DSLabs\Redaktor\Brief;
+use DSLabs\Redaktor\Editor;
+use DSLabs\Redaktor\Exception\MutationException;
+use DSLabs\Redaktor\Revision;
 use PhpSpec\ObjectBehavior;
+use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use DSLabs\Redaktor\Editor;
-use DSLabs\Redaktor\EditorInterface;
-use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Registry;
-use DSLabs\Redaktor\Revision;
-use DSLabs\Redaktor\Supersedes;
-use DSLabs\Redaktor\Version\VersionResolver;
 
 /**
  * @see Editor
  */
 class EditorSpec extends ObjectBehavior
 {
-    function let(
-        Registry $registry,
-        VersionResolver $versionResolver
-    ) {
-        $this->beConstructedWith($registry, $versionResolver);
-    }
-
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(EditorInterface::class);
-    }
-
-    function it_retrieves_all_revisions_from_registry_if_no_version_specified(
-        VersionResolver $versionResolver,
-        Registry $registry,
+    function it_retrieves_the_same_request_if_the_brief_contains_no_revisions(
         ServerRequestInterface $request
     ) {
         // Arrange
-        $versionResolver->resolve($request)->willReturn(null);
-        $registry->retrieveAll()->willReturn([]);
+        $this->beConstructedWith(
+            self::createBrief($request, [])
+        );
 
         // Act
-        $this->reviseRequest($request);
-
-        // Assert
-        $registry->retrieveAll()->shouldHaveBeenCalledOnce();
-        $registry->retrieveSince(Argument::type('string'))->shouldNotHaveBeenCalled();
+        $this->reviseRequest()
+            // Assert
+            ->shouldBe($request);
     }
 
-    function it_retrieves_revisions_since_resolved_version_to_run_request_through_them(
-        VersionResolver $versionResolver,
-        Registry $registry,
-        ServerRequestInterface $request
+    function it_retrieves_the_same_request_if_the_brief_contains_no_applicable_revisions(
+        ServerRequestInterface $request,
+        Revision $revision
     ) {
         // Arrange
-        $versionResolver->resolve($request)->willReturn('foo');
-        $registry->retrieveSince(Argument::any())->willReturn([]);
+        $revision->isApplicable($request)->willReturn(false);
+        $this->beConstructedWith(
+            self::createBrief($request, [$revision])
+        );
 
         // Act
-        $this->reviseRequest($request);
-
-        // Assert
-        $registry->retrieveSince('foo')->shouldHaveBeenCalledOnce();
-        $registry->retrieveAll()->shouldNotHaveBeenCalled();
+        $this->reviseRequest()
+            // Assert
+            ->shouldBe($request);
     }
 
-    function it_uses_last_revised_request_to_check_if_next_revision_is_applicable(
-        Revision $revisionA,
-        ServerRequestInterface $requestAfterRevisionA,
-        Revision $revisionB,
-        ServerRequestInterface $requestAfterRevisionB,
-        Registry $registry,
-        ServerRequestInterface $originalRequest
-    ) {
-        // Arrange
-        $revisionA->isApplicable(Argument::any())->willReturn(true);
-        $revisionA->applyToRequest(Argument::any())->willReturn($requestAfterRevisionA);
-
-        $revisionB->isApplicable(Argument::any())->willReturn(true);
-        $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
-
-        $registry->retrieveAll()->willReturn([
-            $revisionA,
-            $revisionB,
-        ]);
-
-        // Act
-        $this->reviseRequest($originalRequest);
-
-        // Assert
-        $revisionA->isApplicable($originalRequest)
-            ->shouldHaveBeenCalledOnce();
-        $revisionB->isApplicable($requestAfterRevisionA)
-            ->shouldHaveBeenCalledOnce();
-    }
-
-    function it_applies_multiple_revisions_to_the_request(
-        ServerRequestInterface $originalRequest,
-        ServerRequestInterface $requestAfterRevisionA,
-        ServerRequestInterface $requestAfterRevisionB,
-        Registry $registry,
+    function it_revises_a_request_based_on_applicable_revisions(
+        ServerRequestInterface $request,
+        ServerRequestInterface $revisedRequest,
         Revision $revisionA,
         Revision $revisionB
     ) {
         // Arrange
-        $revisionA->isApplicable(Argument::any())->willReturn(true);
-        $revisionA->applyToRequest(Argument::any())->willReturn($requestAfterRevisionA);
+        $revisionA->isApplicable($request)->willReturn(false);
 
-        $revisionB->isApplicable(Argument::any())->willReturn(true);
-        $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
+        $revisionB->isApplicable($request)->willReturn(true);
+        $revisionB->applyToRequest($request)->willReturn($revisedRequest);
 
-        $registry->retrieveAll()->willReturn([
-            $revisionA,
-            $revisionB,
-        ]);
+        $brief = self::createBrief($request, [$revisionA, $revisionB]);
+        $this->beConstructedWith($brief);
 
         // Act
-        $revisedRequest = $this->reviseRequest($originalRequest);
+        $this->reviseRequest()
+            // Assert
+            ->shouldBe($revisedRequest);
 
-        // Assert
-        $revisionA->applyToRequest($originalRequest)
-            ->shouldHaveBeenCalledOnce();
-        $revisionB->applyToRequest($requestAfterRevisionA)
-            ->shouldHaveBeenCalledOnce();
-        $revisedRequest->shouldBe($requestAfterRevisionB);
+        $revisionA->applyToRequest(Argument::any())->shouldNotHaveBeenCalled();
+        $revisionB->applyToRequest($request)->shouldHaveBeenCalledOnce();
     }
 
-    function it_does_not_apply_unapplicable_revisions_to_the_request(
-        ServerRequestInterface $originalRequest,
-        Registry $registry,
+    function it_uses_the_revised_request_to_check_if_the_next_revision_is_applicable_when_revising_the_request(
+        ServerRequestInterface $request,
+        ServerRequestInterface $revisedRequestA,
+        ServerRequestInterface $revisedRequestB,
+        Revision $revisionA,
+        Revision $revisionB
+    ) {
+        // Arrange
+        $revisionA->isApplicable($request)->willReturn(true);
+        $revisionA->applyToRequest($request)->willReturn($revisedRequestA);
+
+        $revisionB->isApplicable($revisedRequestA)->willReturn(true);
+        $revisionB->applyToRequest($revisedRequestA)->willReturn($revisedRequestB);
+
+        $this->beConstructedWith(
+            self::createBrief($request, [$revisionA, $revisionB])
+        );
+
+        // Act
+        $this->reviseRequest()
+            // Assert
+            ->shouldBe($revisedRequestB);
+    }
+
+    function it_disallows_unmutated_requests_from_applicable_revisions(
+        ServerRequestInterface $request,
         Revision $revision
     ) {
         // Arrange
-        $revision->isApplicable(Argument::any())->willReturn(false);
-
-        $registry->retrieveAll()->willReturn([
-            $revision,
-        ]);
-
-        // Act
-        $revisedRequest = $this->reviseRequest($originalRequest);
-
-        // Assert
-        $revision->applyToRequest(Argument::any())
-            ->shouldNotHaveBeenCalled();
-        $revisedRequest->shouldBe($originalRequest);
-    }
-
-    function it_retrieves_revisions_since_resolved_version_to_run_response_through_them(
-        VersionResolver $versionResolver,
-        Registry $registry,
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) {
-        // Arrange
-        $versionResolver->resolve($request)->willReturn('foo');
-
-        $registry->retrieveSince(Argument::any())->willReturn([]);
-
-        // Act
-        $this->reviseResponse($request, $response);
-
-        // Assert
-        $registry->retrieveSince('foo')->shouldHaveBeenCalledOnce();
-        $registry->retrieveAll()->shouldNotHaveBeenCalled();
-    }
-
-    function it_does_not_apply_unapplicable_revisions_to_the_response(
-        ServerRequestInterface $originalRequest,
-        Registry $registry,
-        Revision $revision,
-        ResponseInterface $upToDateResponse
-    ) {
-        // Arrange
-        $revision->isApplicable(Argument::any())->willReturn(false);
-
-        $registry->retrieveAll()->willReturn([
-            $revision,
-        ]);
-
-        // Act
-        $revisedResponse = $this->reviseResponse($originalRequest, $upToDateResponse);
-
-        // Assert
-        $revisedResponse->shouldBe($upToDateResponse);
-        $revision->applyToResponse($upToDateResponse)
-            ->shouldNotHaveBeenCalled();
-    }
-
-    function it_applies_applicable_revisions_to_response(
-        Revision $revision,
-        ServerRequestInterface $request,
-        ResponseInterface $upToDateResponse,
-        ResponseInterface $userExpectedResponse,
-        Registry $registry,
-        ServerRequestInterface $requestPlaceholder
-    ) {
-        // Arrange
         $revision->isApplicable($request)->willReturn(true);
-        $revision->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
-        $revision->applyToResponse(Argument::any())->willReturn($userExpectedResponse);
+        $revision->applyToRequest($request)->willReturn($request);
 
-        $registry->retrieveAll()->willReturn([
-            $revision
-        ]);
-
-        // Act
-        $revisedResponse = $this->reviseResponse($request, $upToDateResponse);
-
-        // Assert
-        $revision->applyToResponse($upToDateResponse)
-            ->shouldHaveBeenCalledOnce();
-        $revisedResponse->shouldBe($userExpectedResponse);
-    }
-
-    function it_applies_revisions_to_response_in_reverse_order(
-        Revision $revisionA,
-        Revision $revisionB,
-        Registry $registry,
-        ServerRequestInterface $request,
-        ResponseInterface $upToDateResponse,
-        ResponseInterface $responseAfterRevisionB,
-        ResponseInterface $responseAfterRevisionA,
-        ServerRequestInterface $requestPlaceholder
-    ) {
-        // Arrange
-        $revisionA->isApplicable(Argument::any())->willReturn(true);
-        $revisionA->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
-        $revisionA->applyToResponse(Argument::any())->willReturn($responseAfterRevisionA);
-
-        $revisionB->isApplicable(Argument::any())->willReturn(true);
-        $revisionB->applyToRequest(Argument::any())->willReturn($requestPlaceholder);
-        $revisionB->applyToResponse(Argument::any())->willReturn($responseAfterRevisionB);
-
-        $registry->retrieveAll()->willReturn([
-            $revisionA,
-            $revisionB,
-        ]);
-
-        // Act
-        $revisedResponse = $this->reviseResponse($request, $upToDateResponse);
-
-        // Assert
-        $revisionB->applyToResponse($upToDateResponse)
-            ->shouldHaveBeenCalledOnce();
-        $revisionA->applyToResponse($responseAfterRevisionB)
-            ->shouldHaveBeenCalledOnce();
-        $revisedResponse->shouldBe($responseAfterRevisionA);
-    }
-
-    function it_uses_last_revised_request_to_check_if_next_revision_is_applicable_to_response(
-        Registry $registry,
-        Revision $revisionA,
-        Revision $revisionB,
-        ServerRequestInterface $upToDateRequest,
-        ResponseInterface $upToDateResponse,
-        ServerRequestInterface $requestAfterRevisionB,
-        ResponseInterface $responseAfterRevisionB,
-        ResponseInterface $responseAfterRevisionA,
-        ServerRequestInterface $placeHolderRequest
-    ) {
-        // Arrange
-        $revisionA->isApplicable(Argument::any())->willReturn(true);
-        $revisionA->applyToRequest(Argument::any())->willReturn($placeHolderRequest);
-        $revisionA->applyToResponse(Argument::any())->willReturn($responseAfterRevisionA);
-
-        $revisionB->isApplicable(Argument::any())->willReturn(true);
-        $revisionB->applyToRequest(Argument::any())->willReturn($requestAfterRevisionB);
-        $revisionB->applyToResponse(Argument::any())->willReturn($responseAfterRevisionB);
-
-        $registry->retrieveAll()->willReturn([
-            $revisionA,
-            $revisionB,
-        ]);
-
-        // Act
-        $this->reviseResponse($upToDateRequest, $upToDateResponse);
-
-        // Assert
-        $revisionB->isApplicable($upToDateRequest)
-            ->shouldHaveBeenCalledOnce();
-        $revisionA->isApplicable($requestAfterRevisionB)
-            ->shouldHaveBeenCalledOnce();
-    }
-
-    function it_throws_an_exception_if_revision_returns_same_request_instance(
-        Revision $revision,
-        Registry $registry,
-        ServerRequestInterface $request
-    ) {
-        // Arrange
-        $revision->isApplicable(Argument::any())->willReturn(true);
-        $revision->applyToRequest(Argument::any())->willReturnArgument(0);
-
-        $registry->retrieveAll()->willReturn([
-            $revision
-        ]);
+        $brief = self::createBrief(
+            $request,
+            [$revision]
+        );
+        $this->beConstructedWith($brief);
 
         // Assert
         $this->shouldThrow(MutationException::class)
             // Act
-            ->during('reviseRequest', [$request]);
+            ->during('reviseRequest');
     }
 
-    function it_throws_an_exception_if_revision_returns_same_response_instance(
-        Revision $revision,
-        Registry $registry,
+    function it_retrieves_the_same_response_if_the_brief_contains_no_revisions(
         ServerRequestInterface $request,
         ResponseInterface $response
     ) {
         // Arrange
+        $this->beConstructedWith(
+            self::createBrief($request, [])
+        );
+
+        // Act
+        $this->reviseResponse($response)
+            // Assert
+            ->shouldBe($response);
+    }
+
+    function it_retrieves_the_same_response_if_the_brief_contains_no_applicable_revisions(
+        ServerRequestInterface $request,
+        Revision $revision,
+        ResponseInterface $response
+    ) {
+        // Arrange
+        $revision->isApplicable($request)->willReturn(false);
+        $this->beConstructedWith(
+            self::createBrief($request, [$revision])
+        );
+
+        // Act
+        $this->reviseResponse($response)
+            // Assert
+            ->shouldBe($response);
+    }
+
+    function it_revises_a_response_based_on_applicable_revisions(
+        ServerRequestInterface $request,
+        ServerRequestInterface $revisedRequest,
+        ResponseInterface $response,
+        ResponseInterface $revisedResponse,
+        Revision $revisionA,
+        Revision $revisionB
+    ) {
+        // Arrange
+        $revisionA->isApplicable($request)->willReturn(false);
+
+        $revisionB->isApplicable($request)->willReturn(true);
+        $revisionB->applyToRequest(Argument::any())->willReturn($revisedRequest);
+        $revisionB->applyToResponse(Argument::any())->willReturn($revisedResponse);
+
+        $brief = self::createBrief($request, [$revisionA, $revisionB]);
+        $this->beConstructedWith($brief);
+
+        // Act
+        $this->reviseResponse($response)
+            // Assert
+            ->shouldBe($revisedResponse);
+    }
+
+    function it_disallows_unmutated_responses_from_applicable_revisions(
+        ServerRequestInterface $request,
+        ServerRequestInterface $revisedRequest,
+        ResponseInterface $response,
+        Revision $revision
+    ) {
+        // Arrange
         $revision->isApplicable(Argument::any())->willReturn(true);
-        $revision->applyToRequest(Argument::any())->willReturn($request);
+        $revision->applyToRequest(Argument::any())->willReturn($revisedRequest);
         $revision->applyToResponse(Argument::any())->willReturn($response);
 
-        $registry->retrieveAll()->willReturn([
-            $revision
-        ]);
+        $brief = self::createBrief(
+            $request,
+            [$revision]
+        );
+        $this->beConstructedWith($brief);
 
         // Assert
         $this->shouldThrow(MutationException::class)
             // Act
-            ->during('reviseResponse', [$request, $response]);
+            ->during('reviseResponse', [$response]);
     }
 
-    function it_skips_overridden_revision_while_editing_a_request(
-        Registry $registry,
-        Revision $revisionA,
-        Revision $revisionB,
-        ServerRequestInterface $request
-    ) {
-        // Arrange
-        $revisionB->implement(Supersedes::class);
-        $revisionB->supersedes(Argument::any())->willReturn(true);
-        $revisionB->isApplicable(Argument::any());
+    /**
+     * @param RequestInterface|Collaborator $request
+     * @param Revision[]|Collaborator[] $revisions
+     */
+    private static function createBrief(RequestInterface $request, array $revisions): Brief
+    {
+        $wrappedRevisions = array_map(static function (Collaborator $revision) {
+            return $revision->getWrappedObject();
+        }, $revisions);
 
-        $registry->retrieveAll()->willReturn([
-            $revisionA,
-            $revisionB,
-        ]);
-
-        // Act
-        $this->reviseRequest($request);
-
-        // Assert
-        $revisionA->isApplicable($request)
-            ->shouldNotHaveBeenCalled();
-        $revisionA->applyToRequest($request)
-            ->shouldNotHaveBeenCalled();
-
-        $revisionB->isApplicable($request)
-            ->shouldHaveBeenCalled();
-    }
-
-    function it_returns_the_same_request_if_there_are_no_revisions_applicable(
-        Registry $registry,
-        ServerRequestInterface $request
-    ) {
-        // Arrange
-        $registry->retrieveAll()->willReturn([]);
-
-        // Act
-        $this->reviseRequest($request)
-            // Assert
-            ->shouldBe($request);
+        return new Brief(
+            $request->getWrappedObject(),
+            $wrappedRevisions
+        );
     }
 }
