@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace spec\DSLabs\Redaktor;
+namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
-use DSLabs\Redaktor\InMemoryRegistry;
+use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use PhpSpec\ObjectBehavior;
 
 /**

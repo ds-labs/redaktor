@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use Closure;
+use DSLabs\Redaktor\Registry\Registry;
+use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use Psr\Http\Message\ServerRequestInterface;
 

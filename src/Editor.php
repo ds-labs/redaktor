@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Exception\MutationException;
+use DSLabs\Redaktor\Registry\Revision;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

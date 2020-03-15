@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Exception;
 
-use DSLabs\Redaktor\Revision;
+use DSLabs\Redaktor\Registry\Revision;
 
 final class MutationException extends \Exception
 {

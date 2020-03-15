@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor;
+namespace DSLabs\Redaktor\Registry;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

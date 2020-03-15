@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Brief;
-use DSLabs\Redaktor\Revision;
+use DSLabs\Redaktor\Registry\Revision;
 use PhpSpec\ObjectBehavior;
 use Psr\Http\Message\ServerRequestInterface;
 

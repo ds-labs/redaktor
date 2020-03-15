@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
+use DSLabs\Redaktor\Registry\Revision;
 use Psr\Http\Message\RequestInterface;
 
 final class Brief

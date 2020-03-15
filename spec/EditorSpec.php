@@ -7,7 +7,7 @@ namespace spec\DSLabs\Redaktor;
 use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\Editor;
 use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Revision;
+use DSLabs\Redaktor\Registry\Revision;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
