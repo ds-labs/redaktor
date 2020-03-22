@@ -7,7 +7,7 @@ namespace spec\DSLabs\Redaktor;
 use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\Editor;
 use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
@@ -36,12 +36,12 @@ class EditorSpec extends ObjectBehavior
 
     function it_retrieves_the_same_request_if_the_brief_contains_no_applicable_revisions(
         ServerRequestInterface $request,
-        Revision $revision
+        MessageRevision $messageRevision
     ) {
         // Arrange
-        $revision->isApplicable($request)->willReturn(false);
+        $messageRevision->isApplicable($request)->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($request, [$revision])
+            self::createBrief($request, [$messageRevision])
         );
 
         // Act
@@ -53,16 +53,16 @@ class EditorSpec extends ObjectBehavior
     function it_revises_a_request_based_on_applicable_revisions(
         ServerRequestInterface $request,
         ServerRequestInterface $revisedRequest,
-        Revision $revisionA,
-        Revision $revisionB
+        MessageRevision $messageRevisionA,
+        MessageRevision $messageRevisionB
     ) {
         // Arrange
-        $revisionA->isApplicable($request)->willReturn(false);
+        $messageRevisionA->isApplicable($request)->willReturn(false);
 
-        $revisionB->isApplicable($request)->willReturn(true);
-        $revisionB->applyToRequest($request)->willReturn($revisedRequest);
+        $messageRevisionB->isApplicable($request)->willReturn(true);
+        $messageRevisionB->applyToRequest($request)->willReturn($revisedRequest);
 
-        $brief = self::createBrief($request, [$revisionA, $revisionB]);
+        $brief = self::createBrief($request, [$messageRevisionA, $messageRevisionB]);
         $this->beConstructedWith($brief);
 
         // Act
@@ -70,26 +70,26 @@ class EditorSpec extends ObjectBehavior
             // Assert
             ->shouldBe($revisedRequest);
 
-        $revisionA->applyToRequest(Argument::any())->shouldNotHaveBeenCalled();
-        $revisionB->applyToRequest($request)->shouldHaveBeenCalledOnce();
+        $messageRevisionA->applyToRequest(Argument::any())->shouldNotHaveBeenCalled();
+        $messageRevisionB->applyToRequest($request)->shouldHaveBeenCalledOnce();
     }
 
     function it_uses_the_revised_request_to_check_if_the_next_revision_is_applicable_when_revising_the_request(
         ServerRequestInterface $request,
         ServerRequestInterface $revisedRequestA,
         ServerRequestInterface $revisedRequestB,
-        Revision $revisionA,
-        Revision $revisionB
+        MessageRevision $messageRevisionA,
+        MessageRevision $messageRevisionB
     ) {
         // Arrange
-        $revisionA->isApplicable($request)->willReturn(true);
-        $revisionA->applyToRequest($request)->willReturn($revisedRequestA);
+        $messageRevisionA->isApplicable($request)->willReturn(true);
+        $messageRevisionA->applyToRequest($request)->willReturn($revisedRequestA);
 
-        $revisionB->isApplicable($revisedRequestA)->willReturn(true);
-        $revisionB->applyToRequest($revisedRequestA)->willReturn($revisedRequestB);
+        $messageRevisionB->isApplicable($revisedRequestA)->willReturn(true);
+        $messageRevisionB->applyToRequest($revisedRequestA)->willReturn($revisedRequestB);
 
         $this->beConstructedWith(
-            self::createBrief($request, [$revisionA, $revisionB])
+            self::createBrief($request, [$messageRevisionA, $messageRevisionB])
         );
 
         // Act
@@ -100,15 +100,15 @@ class EditorSpec extends ObjectBehavior
 
     function it_disallows_unmutated_requests_from_applicable_revisions(
         ServerRequestInterface $request,
-        Revision $revision
+        MessageRevision $messageRevision
     ) {
         // Arrange
-        $revision->isApplicable($request)->willReturn(true);
-        $revision->applyToRequest($request)->willReturn($request);
+        $messageRevision->isApplicable($request)->willReturn(true);
+        $messageRevision->applyToRequest($request)->willReturn($request);
 
         $brief = self::createBrief(
             $request,
-            [$revision]
+            [$messageRevision]
         );
         $this->beConstructedWith($brief);
 
@@ -135,13 +135,13 @@ class EditorSpec extends ObjectBehavior
 
     function it_retrieves_the_same_response_if_the_brief_contains_no_applicable_revisions(
         ServerRequestInterface $request,
-        Revision $revision,
+        MessageRevision $messageRevision,
         ResponseInterface $response
     ) {
         // Arrange
-        $revision->isApplicable($request)->willReturn(false);
+        $messageRevision->isApplicable($request)->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($request, [$revision])
+            self::createBrief($request, [$messageRevision])
         );
 
         // Act
@@ -155,17 +155,17 @@ class EditorSpec extends ObjectBehavior
         ServerRequestInterface $revisedRequest,
         ResponseInterface $response,
         ResponseInterface $revisedResponse,
-        Revision $revisionA,
-        Revision $revisionB
+        MessageRevision $messageRevisionA,
+        MessageRevision $messageRevisionB
     ) {
         // Arrange
-        $revisionA->isApplicable($request)->willReturn(false);
+        $messageRevisionA->isApplicable($request)->willReturn(false);
 
-        $revisionB->isApplicable($request)->willReturn(true);
-        $revisionB->applyToRequest(Argument::any())->willReturn($revisedRequest);
-        $revisionB->applyToResponse(Argument::any())->willReturn($revisedResponse);
+        $messageRevisionB->isApplicable($request)->willReturn(true);
+        $messageRevisionB->applyToRequest(Argument::any())->willReturn($revisedRequest);
+        $messageRevisionB->applyToResponse(Argument::any())->willReturn($revisedResponse);
 
-        $brief = self::createBrief($request, [$revisionA, $revisionB]);
+        $brief = self::createBrief($request, [$messageRevisionA, $messageRevisionB]);
         $this->beConstructedWith($brief);
 
         // Act
@@ -178,7 +178,7 @@ class EditorSpec extends ObjectBehavior
         ServerRequestInterface $request,
         ServerRequestInterface $revisedRequest,
         ResponseInterface $response,
-        Revision $revision
+        MessageRevision $revision
     ) {
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(true);
@@ -199,17 +199,17 @@ class EditorSpec extends ObjectBehavior
 
     /**
      * @param RequestInterface|Collaborator $request
-     * @param Revision[]|Collaborator[] $revisions
+     * @param MessageRevision[]|Collaborator[] $revisions
      */
     private static function createBrief(RequestInterface $request, array $revisions): Brief
     {
-        $wrappedRevisions = array_map(static function (Collaborator $revision) {
+        $revisions = array_map(static function(Collaborator $revision) {
             return $revision->getWrappedObject();
         }, $revisions);
 
         return new Brief(
             $request->getWrappedObject(),
-            $wrappedRevisions
+            $revisions
         );
     }
 }

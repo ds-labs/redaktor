@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Exception;
 
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 
 final class MutationException extends \Exception
 {
-    public static function inRevision(Revision $revision): self
+    public static function inRevision(MessageRevision $revision): self
     {
         $revisionClassName = get_class($revision);
         $message = "Revision [{$revisionClassName}] returned same received instance. Revision must be immutable.";

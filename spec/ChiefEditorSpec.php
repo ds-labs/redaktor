@@ -8,7 +8,7 @@ use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor;
 use DSLabs\Redaktor\Registry\Registry;
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
@@ -86,8 +86,8 @@ class ChiefEditorSpec extends ObjectBehavior
     function it_discards_superseded_revisions(
         Registry $registry,
         ServerRequestInterface $request,
-        Revision $supersededRevision,
-        Revision $supersederRevision
+        MessageRevision $supersededRevision,
+        MessageRevision $supersederRevision
     ) {
         // Arrange
         $supersederRevision->implement(Supersedes::class);

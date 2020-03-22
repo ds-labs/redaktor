@@ -7,7 +7,7 @@ namespace DSLabs\Redaktor\Registry;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-interface Revision
+interface MessageRevision
 {
     public function isApplicable(RequestInterface $request): bool;
 

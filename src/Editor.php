@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,7 +37,7 @@ final class Editor
             $this->brief->revisions(),
             function(
                 RequestInterface $request,
-                Revision $revision
+                MessageRevision $revision
             ) {
                 if (!$revision->isApplicable($request)) {
                     return $request;
@@ -67,7 +67,7 @@ final class Editor
 
         return array_reduce(
             array_reverse($this->applicableRevisions),
-            static function(ResponseInterface $response, Revision $revision) {
+            static function(ResponseInterface $response, MessageRevision $revision) {
                 $revisedResponse = $revision->applyToResponse($response);
 
                 if ($revisedResponse === $response) {

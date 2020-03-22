@@ -6,7 +6,7 @@ namespace DSLabs\Redaktor;
 
 use Closure;
 use DSLabs\Redaktor\Registry\Registry;
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use Psr\Http\Message\ServerRequestInterface;
@@ -75,7 +75,7 @@ final class ChiefEditor
     /**
      * @param Closure[] $revisionFactories
      *
-     * @return Revision[]
+     * @return MessageRevision[]
      */
     private static function open(array $revisionFactories): array
     {
@@ -85,9 +85,9 @@ final class ChiefEditor
     }
 
     /**
-     * @param Revision[] $revisions
+     * @param MessageRevision[] $revisions
      *
-     * @return Revision[]
+     * @return MessageRevision[]
      */
     private static function filterSupersededRevisions(array $revisions): array
     {
@@ -99,7 +99,7 @@ final class ChiefEditor
         // @todo Ensure `$initialRevision` does not implement `Supersedes` interface.
         return array_reduce(
             $revisions,
-            static function (array $squashedRevisions, Revision $currentRevision): array {
+            static function (array $squashedRevisions, MessageRevision $currentRevision): array {
 
                 if ($currentRevision instanceof Supersedes
                     && $currentRevision->supersedes(

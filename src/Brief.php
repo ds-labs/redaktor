@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
-use DSLabs\Redaktor\Registry\Revision;
+use DSLabs\Redaktor\Registry\MessageRevision;
 use Psr\Http\Message\RequestInterface;
 
 final class Brief
@@ -15,12 +15,12 @@ final class Brief
     private $request;
 
     /**
-     * @var Revision[]
+     * @var MessageRevision[]
      */
     private $revisions;
 
     /**
-     * @param Revision[] $revisions
+     * @param MessageRevision[] $revisions
      */
     public function __construct(
         RequestInterface $request,
@@ -38,7 +38,7 @@ final class Brief
     }
 
     /**
-     * @return Revision[]
+     * @return MessageRevision[]
      */
     public function revisions(): array
     {
@@ -48,11 +48,11 @@ final class Brief
     private static function validateRevisions(array $revisions): void
     {
         foreach ($revisions as $revision) {
-            if (!$revision instanceof Revision) {
+            if (!$revision instanceof MessageRevision) {
                 throw new \InvalidArgumentException(
                     sprintf(
                         '%s instance expected. Got: %s.',
-                        Revision::class,
+                        MessageRevision::class,
                         gettype($revision)
                     )
                 );
