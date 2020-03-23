@@ -174,6 +174,29 @@ class EditorSpec extends ObjectBehavior
             ->shouldBe($revisedResponse);
     }
 
+    function it_does_not_double_revise_the_request_if_already_done_so(
+        ServerRequestInterface $request,
+        MessageRevision $messageRevision,
+        ResponseInterface $response
+    ) {
+        // Arrange
+        $messageRevision->isApplicable(Argument::any());
+
+        $this->beConstructedWith(
+            self::createBrief(
+                $request,
+                [$messageRevision]
+            )
+        );
+
+        // Act
+        $this->reviseRequest();
+        $this->reviseResponse($response);
+
+        // Assert
+        $messageRevision->isApplicable(Argument::any())->shouldHaveBeenCalledOnce();
+    }
+
     function it_disallows_unmutated_responses_from_applicable_revisions(
         ServerRequestInterface $request,
         ServerRequestInterface $revisedRequest,

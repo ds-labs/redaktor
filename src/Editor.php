@@ -20,6 +20,11 @@ final class Editor
      */
     private $brief;
 
+    /**
+     * @var bool
+     */
+    protected $requestIsRevised = false;
+
     private $applicableRevisions = [];
 
     public function __construct(
@@ -29,11 +34,11 @@ final class Editor
     }
 
     /**
-     * Revise the Request given in the Brief
+     * Revise the Request given in the Brief.
      */
     public function reviseRequest(): ServerRequestInterface
     {
-        return array_reduce(
+        $upToDateRequest = array_reduce(
             $this->brief->revisions(),
             function(
                 RequestInterface $request,
@@ -54,6 +59,10 @@ final class Editor
             },
             $this->brief->request()
         );
+
+        $this->markRequestAsRevised();
+
+        return $upToDateRequest;
     }
 
     /**
@@ -62,8 +71,9 @@ final class Editor
      */
     public function reviseResponse(ResponseInterface $response): ResponseInterface
     {
-        // @todo: check if the applicable revisions are already known.
-        $this->reviseRequest();
+        if (!$this->requestIsRevised) {
+            $this->reviseRequest();
+        }
 
         return array_reduce(
             array_reverse($this->applicableRevisions),
@@ -78,5 +88,14 @@ final class Editor
             },
             $response
         );
+    }
+
+    /**
+     * Set an internal property indicating that the Request has already been
+     * revised, and therefore the applicable revisions are known by the Editor.
+     */
+    private function markRequestAsRevised(): void
+    {
+        $this->requestIsRevised = true;
     }
 }
