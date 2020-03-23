@@ -8,6 +8,7 @@ use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\Editor;
 use DSLabs\Redaktor\Exception\MutationException;
 use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Registry\RoutingRevision;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
@@ -218,6 +219,92 @@ class EditorSpec extends ObjectBehavior
         $this->shouldThrow(MutationException::class)
             // Act
             ->during('reviseResponse', [$response]);
+    }
+
+    function it_revises_routing(
+        ServerRequestInterface $request,
+        RoutingRevision $routingRevisionA,
+        RoutingRevision $routingRevisionB
+    ) {
+        // Arrange
+        $routingRevisionA->applyRouting()->willReturn($routeConfiguratorA = static function() { });
+        $routingRevisionB->applyRouting()->willReturn($routeConfiguratorB = static function() { });
+
+        $brief = self::createBrief(
+            $request,
+            [$routingRevisionA, $routingRevisionB]
+        );
+        $this->beConstructedWith($brief);
+
+        // Act
+        $routeConfigurators = $this->reviseRouting();
+
+        // Assert
+        $routeConfigurators->shouldIterateAs([
+            $routeConfiguratorA,
+            $routeConfiguratorB
+        ]);
+    }
+
+    function it_ignores_routing_revisions_while_revising_request(
+        ServerRequestInterface $request,
+        RoutingRevision $routingRevision
+    ) {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                $request,
+                [$routingRevision]
+            )
+        );
+
+        // Act
+        $this->reviseRequest();
+
+        // Assert
+        $routingRevision->applyRouting()->shouldNotHaveBeenCalled();
+    }
+
+    function it_ignores_routing_revisions_while_revising_response(
+        ServerRequestInterface $request,
+        RoutingRevision $routingRevision,
+        ResponseInterface $response
+    ) {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                $request,
+                [$routingRevision]
+            )
+        );
+
+        // Act
+        $this->reviseResponse($response);
+
+        // Assert
+        $routingRevision->applyRouting()->shouldNotHaveBeenCalled();
+    }
+
+    function it_ignores_message_revisions_while_revising_routing(
+        ServerRequestInterface $request,
+        MessageRevision $messageRevision,
+        RoutingRevision $routingRevision
+    ) {
+        // Arrange
+        $routingRevision->applyRouting()->willReturn($routeConfigurator = static function() { });
+        $this->beConstructedWith(
+            self::createBrief(
+                $request,
+                [$messageRevision, $routingRevision]
+            )
+        );
+
+        // Act
+        $this->reviseRouting()
+            // Assert
+            ->shouldIterateAs([
+                $routeConfigurator
+            ]);
     }
 
     /**

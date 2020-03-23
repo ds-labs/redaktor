@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Registry\RoutingRevision;
 use Psr\Http\Message\RequestInterface;
 
 final class Brief
@@ -48,12 +49,19 @@ final class Brief
     private static function validateRevisions(array $revisions): void
     {
         foreach ($revisions as $revision) {
-            if (!$revision instanceof MessageRevision) {
+            if (
+                !($revision instanceof MessageRevision
+                || $revision instanceof RoutingRevision)
+            ) {
+                $type = is_object($revision)
+                    ? get_class($revision)
+                    : gettype($revision);
+
                 throw new \InvalidArgumentException(
                     sprintf(
                         '%s instance expected. Got: %s.',
                         MessageRevision::class,
-                        gettype($revision)
+                        $type
                     )
                 );
             }

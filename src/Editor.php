@@ -6,6 +6,7 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Exception\MutationException;
 use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Registry\RoutingRevision;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,6 +26,9 @@ final class Editor
      */
     protected $requestIsRevised = false;
 
+    /**
+     * @var MessageRevision[]|RoutingRevision[]
+     */
     private $applicableRevisions = [];
 
     public function __construct(
@@ -33,13 +37,26 @@ final class Editor
         $this->brief = $brief;
     }
 
+    public function reviseRouting(): \Generator
+    {
+        foreach ($this->brief->revisions() as $revision) {
+            if ($revision instanceof RoutingRevision) {
+                yield $revision->applyRouting();
+            }
+        }
+    }
+
     /**
      * Revise the Request given in the Brief.
      */
     public function reviseRequest(): ServerRequestInterface
     {
+        $revisions = array_filter($this->brief->revisions(), static function ($revision) {
+            return $revision instanceof MessageRevision;
+        });
+
         $upToDateRequest = array_reduce(
-            $this->brief->revisions(),
+            $revisions,
             function(
                 RequestInterface $request,
                 MessageRevision $revision
