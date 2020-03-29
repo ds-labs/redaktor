@@ -37,11 +37,14 @@ final class Editor
         $this->brief = $brief;
     }
 
+    /**
+     * @return \Generator|\Closure[]
+     */
     public function reviseRouting(): \Generator
     {
         foreach ($this->brief->revisions() as $revision) {
             if ($revision instanceof RoutingRevision) {
-                yield $revision->applyRouting();
+                yield $revision;
             }
         }
     }

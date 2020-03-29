@@ -227,9 +227,6 @@ class EditorSpec extends ObjectBehavior
         RoutingRevision $routingRevisionB
     ) {
         // Arrange
-        $routingRevisionA->applyRouting()->willReturn($routeConfiguratorA = static function() { });
-        $routingRevisionB->applyRouting()->willReturn($routeConfiguratorB = static function() { });
-
         $brief = self::createBrief(
             $request,
             [$routingRevisionA, $routingRevisionB]
@@ -241,8 +238,8 @@ class EditorSpec extends ObjectBehavior
 
         // Assert
         $routeConfigurators->shouldIterateAs([
-            $routeConfiguratorA,
-            $routeConfiguratorB
+            $routingRevisionA,
+            $routingRevisionB
         ]);
     }
 
@@ -262,7 +259,7 @@ class EditorSpec extends ObjectBehavior
         $this->reviseRequest();
 
         // Assert
-        $routingRevision->applyRouting()->shouldNotHaveBeenCalled();
+        $routingRevision->__invoke(Argument::any())->shouldNotHaveBeenCalled();
     }
 
     function it_ignores_routing_revisions_while_revising_response(
@@ -282,7 +279,7 @@ class EditorSpec extends ObjectBehavior
         $this->reviseResponse($response);
 
         // Assert
-        $routingRevision->applyRouting()->shouldNotHaveBeenCalled();
+        $routingRevision->__invoke(Argument::any())->shouldNotHaveBeenCalled();
     }
 
     function it_ignores_message_revisions_while_revising_routing(
@@ -291,7 +288,6 @@ class EditorSpec extends ObjectBehavior
         RoutingRevision $routingRevision
     ) {
         // Arrange
-        $routingRevision->applyRouting()->willReturn($routeConfigurator = static function() { });
         $this->beConstructedWith(
             self::createBrief(
                 $request,
@@ -303,7 +299,7 @@ class EditorSpec extends ObjectBehavior
         $this->reviseRouting()
             // Assert
             ->shouldIterateAs([
-                $routeConfigurator
+                $routingRevision
             ]);
     }
 

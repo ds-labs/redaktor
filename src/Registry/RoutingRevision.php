@@ -6,5 +6,5 @@ namespace DSLabs\Redaktor\Registry;
 
 interface RoutingRevision
 {
-    public function applyRouting();
+    public function __invoke($routes);
 }
