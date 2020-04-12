@@ -7,13 +7,14 @@ namespace spec\DSLabs\Redaktor;
 use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor;
-use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
+use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 
 /**
  * @see ChiefEditor
@@ -112,6 +113,63 @@ class ChiefEditorSpec extends ObjectBehavior
                     $request->getWrappedObject(),
                     [
                         $supersederRevision->getWrappedObject(),
+                    ]
+                )
+            )
+        );
+    }
+
+    function it_resolves_closure_revision_definition(
+        VersionResolver $versionResolver,
+        Registry $registry,
+        MessageRevision $revisionA,
+        ServerRequestInterface $request
+    ) {
+        // Arrange
+        $versionResolver->resolve(Argument::any())->willReturn(null);
+        $registry->retrieveAll()->willReturn([
+            static function () use ($revisionA) {
+                return $revisionA->getWrappedObject();
+            }
+        ]);
+
+        // Act
+        $editor = $this->appointEditor($request);
+
+        // Assert
+        $editor->shouldBeLike(
+            new Editor(
+                new Brief(
+                    $request->getWrappedObject(),
+                    [
+                        $revisionA->getWrappedObject(),
+                    ]
+                )
+            )
+        );
+    }
+
+    function it_resolves_class_name_revision_definition(
+        VersionResolver $versionResolver,
+        Registry $registry,
+        ServerRequestInterface $request
+    ) {
+        // Arrange
+        $versionResolver->resolve(Argument::any())->willReturn(null);
+        $registry->retrieveAll()->willReturn([
+            DummyMessageRevision::class
+        ]);
+
+        // Act
+        $editor = $this->appointEditor($request);
+
+        // Assert
+        $editor->shouldBeLike(
+            new Editor(
+                new Brief(
+                    $request->getWrappedObject(),
+                    [
+                        new DummyMessageRevision(),
                     ]
                 )
             )

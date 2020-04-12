@@ -7,6 +7,7 @@ namespace spec\DSLabs\Redaktor\Registry;
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use PhpSpec\ObjectBehavior;
+use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 
 /**
  * @see InMemoryRegistry
@@ -31,16 +32,69 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldHaveCount(0);
     }
 
-    function it_retrieves_all_factories_in_the_registry()
+    function it_supports_class_name_revision()
     {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $factoryA = static function () {},
-                $factoryB = static function () {},
+                DummyMessageRevision::class,
+            ]
+        ]);
+
+        // Act
+        $revisions = $this->retrieveAll();
+
+        // Assert
+        $revisions->shouldHaveCount(1);
+        $revisions->shouldBe([
+            DummyMessageRevision::class,
+        ]);
+    }
+
+    function it_supports_revision_closure_factory()
+    {
+        // Arrange
+        $this->beConstructedWith([
+            'foo' => [
+                $factory = static function() { },
+            ]
+        ]);
+
+        // Act
+        $revisions = $this->retrieveAll();
+
+        // Assert
+        $revisions->shouldHaveCount(1);
+        $revisions->shouldBe([
+            $factory,
+        ]);
+    }
+
+    function it_disallow_non_class_name_strings()
+    {
+        // Arrange
+        $this->beConstructedWith([
+            'foo' => [
+                'bar',
+            ]
+        ]);
+
+        // Assert
+        $this->shouldThrow(InvalidVersionDefinitionException::class)
+            // Act
+            ->duringInstantiation();
+    }
+
+    function it_retrieves_all_revisions_in_the_registry()
+    {
+        // Arrange
+        $this->beConstructedWith([
+            'foo' => [
+                $revisionA = DummyMessageRevision::class,
+                $revisionB = DummyMessageRevision::class,
             ],
             'bar' => [
-                $factoryC = static function () {},
+                $revisionC = DummyMessageRevision::class,
             ],
         ]);
 
@@ -48,12 +102,11 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions = $this->retrieveAll();
 
         // Assert
-        $revisions->shouldBeArray();
         $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
-            $factoryA,
-            $factoryB,
-            $factoryC,
+            $revisionA,
+            $revisionB,
+            $revisionC,
         ]);
     }
 
@@ -62,14 +115,14 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $factoryA = static function () {},
+                $revisionA = DummyMessageRevision::class,
             ],
             'bar' => [
-                $factoryB = static function () {},
-                $factoryC = static function () {},
+                $revisionB = DummyMessageRevision::class,
+                $revisionC = DummyMessageRevision::class,
             ],
             'baz' => [
-                $factoryD = static function () {},
+                $revisionD = DummyMessageRevision::class,
             ],
         ]);
 
@@ -80,9 +133,9 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldBeArray();
         $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
-            $factoryB,
-            $factoryC,
-            $factoryD,
+            $revisionB,
+            $revisionC,
+            $revisionD,
         ]);
     }
 
@@ -91,21 +144,6 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [],
-        ]);
-
-        // Assert
-        $this->shouldThrow(InvalidVersionDefinitionException::class)
-            // Act
-            ->duringInstantiation();
-    }
-
-    function it_disallows_a_string_as_a_revision()
-    {
-        // Arrange
-        $this->beConstructedWith([
-            'foo' => [
-                'bar',
-            ],
         ]);
 
         // Assert

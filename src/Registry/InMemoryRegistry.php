@@ -71,21 +71,45 @@ final class InMemoryRegistry implements Registry
 
     private static function validate(array $indexedRevisionFactories): void
     {
-        foreach ($indexedRevisionFactories as $version => $revisionFactories) {
-            if (!$revisionFactories) {
+        foreach ($indexedRevisionFactories as $version => $revisionDefinitions) {
+            if (!$revisionDefinitions) {
                 throw new InvalidVersionDefinitionException(
                     'Empty version definition.' // @todo - Improve message
                 );
             }
 
-            foreach ($revisionFactories as $revisionFactory) {
-                if (!$revisionFactory instanceof Closure) {
+            foreach ($revisionDefinitions as $revisionDefinition) {
+                if (!self::isRevisionDefinition($revisionDefinition)) {
                     throw new InvalidVersionDefinitionException(
-                        'Revision Factory must be defined as a Closure. Got: ' . gettype($revisionFactory) . '.'
+                        sprintf(
+                            'Expected %s, or instance of %s or %s. Got: %s',
+                            Closure::class,
+                            RoutingRevision::class,
+                            MessageRevision::class,
+                            is_object($revisionDefinition)
+                                ? get_class($revisionDefinition)
+                                : $revisionDefinition
+                        )
                     );
                 }
             }
         }
+    }
+
+    private static function isRevisionDefinition($revision): bool
+    {
+        if ($revision instanceof Closure) {
+            return true;
+        }
+
+        if (!class_exists($revision)) {
+            return false;
+        }
+
+        $interfaces = class_implements($revision);
+
+        return in_array(MessageRevision::class, $interfaces, true)
+            || in_array(RoutingRevision::class, $interfaces, true);
     }
 
     /**

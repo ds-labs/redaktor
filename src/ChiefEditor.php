@@ -47,12 +47,14 @@ final class ChiefEditor
     private function createBrief(ServerRequestInterface $request): Brief
     {
         $version = $this->askForCurrentVersion($request);
-
         $revisions = $this->getRevisionsForVersion($version);
+        $revisionInstances = self::filterSupersededRevisions(
+            self::open($revisions)
+        );
 
         return new Brief(
             $request,
-            $revisions
+            $revisionInstances
         );
     }
 
@@ -63,25 +65,27 @@ final class ChiefEditor
 
     private function getRevisionsForVersion(?string $version): array
     {
-        $revisions = $version === null
+        return $version === null
             ? $this->registry->retrieveAll()
             : $this->registry->retrieveSince($version);
-
-        return self::filterSupersededRevisions(
-            self::open($revisions)
-        );
     }
 
     /**
-     * @param Closure[] $revisionFactories
+     * @param Closure[]|string[] $revisionDefinitions
      *
      * @return MessageRevision[]
      */
-    private static function open(array $revisionFactories): array
+    private static function open(array $revisionDefinitions): array
     {
-        return array_map(static function (Closure $revisionFactory) {
-            return $revisionFactory();
-        }, $revisionFactories);
+        return array_map(static function ($revisionDefinition) {
+
+            if ($revisionDefinition instanceof Closure) {
+                return $revisionDefinition();
+            }
+
+            return new $revisionDefinition();
+
+        }, $revisionDefinitions);
     }
 
     /**

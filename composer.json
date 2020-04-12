@@ -12,5 +12,13 @@
         "psr-4": {
             "DSLabs\\Redaktor\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\DSLabs\\Redaktor\\": "spec/"
+        }
+    },
+    "scripts": {
+        "test": "phpspec run --format=dot"
     }
 }
