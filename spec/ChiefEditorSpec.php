@@ -13,7 +13,7 @@ use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Psr\Http\Message\ServerRequestInterface;
+use spec\DSLabs\Redaktor\Double\DummyRequest;
 use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 
 /**
@@ -35,14 +35,13 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_appoints_editor_for_a_request_with_no_defined_version(
         Registry $registry,
-        VersionResolver $versionResolver,
-        ServerRequestInterface $request
+        VersionResolver $versionResolver
     ) {
         // Arrange
         $registry->retrieveAll()->willReturn([]);
 
         // Act
-        $editor = $this->appointEditor($request);
+        $editor = $this->appointEditor($request = new DummyRequest());
 
         // Assert
         $versionResolver->resolve($request)->shouldHaveBeenCalled();
@@ -51,7 +50,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor->shouldBeLike(
             new Editor(
                 new Brief(
-                    $request->getWrappedObject(),
+                    $request,
                     []
                 )
             )
@@ -60,15 +59,14 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_appoints_editor_for_a_request_with_a_defined_version(
         Registry $registry,
-        VersionResolver $versionResolver,
-        ServerRequestInterface $request
+        VersionResolver $versionResolver
     ) {
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn('foo');
         $registry->retrieveSince('foo')->willReturn([]);
 
         // Act
-        $editor = $this->appointEditor($request);
+        $editor = $this->appointEditor($request = new DummyRequest());
 
         // Assert
         $versionResolver->resolve($request)->shouldHaveBeenCalled();
@@ -77,7 +75,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor->shouldBeLike(
             new Editor(
                 new Brief(
-                    $request->getWrappedObject(),
+                    $request,
                     []
                 )
             )
@@ -86,7 +84,6 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_discards_superseded_revisions(
         Registry $registry,
-        ServerRequestInterface $request,
         MessageRevision $supersededRevision,
         MessageRevision $supersederRevision
     ) {
@@ -104,13 +101,13 @@ class ChiefEditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $editor = $this->appointEditor($request);
+        $editor = $this->appointEditor($request = new DummyRequest());
 
         // Assert
         $editor->shouldBeLike(
             new Editor(
                 new Brief(
-                    $request->getWrappedObject(),
+                    $request,
                     [
                         $supersederRevision->getWrappedObject(),
                     ]
@@ -122,8 +119,7 @@ class ChiefEditorSpec extends ObjectBehavior
     function it_resolves_closure_revision_definition(
         VersionResolver $versionResolver,
         Registry $registry,
-        MessageRevision $revisionA,
-        ServerRequestInterface $request
+        MessageRevision $revisionA
     ) {
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn(null);
@@ -134,13 +130,13 @@ class ChiefEditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $editor = $this->appointEditor($request);
+        $editor = $this->appointEditor($request = new DummyRequest());
 
         // Assert
         $editor->shouldBeLike(
             new Editor(
                 new Brief(
-                    $request->getWrappedObject(),
+                    $request,
                     [
                         $revisionA->getWrappedObject(),
                     ]
@@ -151,8 +147,7 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_resolves_class_name_revision_definition(
         VersionResolver $versionResolver,
-        Registry $registry,
-        ServerRequestInterface $request
+        Registry $registry
     ) {
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn(null);
@@ -161,13 +156,13 @@ class ChiefEditorSpec extends ObjectBehavior
         ]);
 
         // Act
-        $editor = $this->appointEditor($request);
+        $editor = $this->appointEditor($request = new DummyRequest());
 
         // Assert
         $editor->shouldBeLike(
             new Editor(
                 new Brief(
-                    $request->getWrappedObject(),
+                    $request,
                     [
                         new DummyMessageRevision(),
                     ]

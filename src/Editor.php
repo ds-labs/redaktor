@@ -7,9 +7,6 @@ namespace DSLabs\Redaktor;
 use DSLabs\Redaktor\Exception\MutationException;
 use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\RoutingRevision;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Given a Brief is able to revise a Request and/or a Response.
@@ -24,7 +21,7 @@ final class Editor
     /**
      * @var bool
      */
-    protected $requestIsRevised = false;
+    private $requestIsRevised = false;
 
     /**
      * @var MessageRevision[]|RoutingRevision[]
@@ -52,16 +49,16 @@ final class Editor
     /**
      * Revise the Request given in the Brief.
      */
-    public function reviseRequest(): ServerRequestInterface
+    public function reviseRequest(): object
     {
-        $revisions = array_filter($this->brief->revisions(), static function ($revision) {
+        $revisions = array_filter($this->brief->revisions(), static function($revision): bool {
             return $revision instanceof MessageRevision;
         });
 
         $upToDateRequest = array_reduce(
             $revisions,
             function(
-                RequestInterface $request,
+                object $request,
                 MessageRevision $revision
             ) {
                 if (!$revision->isApplicable($request)) {
@@ -87,9 +84,9 @@ final class Editor
 
     /**
      * Revise the given Response based on the applicable revisions for
-     * the Request indicated in the Brief.
+     * the Request specified in the Brief.
      */
-    public function reviseResponse(ResponseInterface $response): ResponseInterface
+    public function reviseResponse(object $response): object
     {
         if (!$this->requestIsRevised) {
             $this->reviseRequest();
@@ -97,7 +94,7 @@ final class Editor
 
         return array_reduce(
             array_reverse($this->applicableRevisions),
-            static function(ResponseInterface $response, MessageRevision $revision) {
+            static function($response, MessageRevision $revision): object {
                 $revisedResponse = $revision->applyToResponse($response);
 
                 if ($revisedResponse === $response) {

@@ -9,7 +9,6 @@ use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Based on the client's Request, appoints an editor to carry our the work.
@@ -37,14 +36,14 @@ final class ChiefEditor
     /**
      * Create the initial brief and assign it to the editor who will carry out the work.
      */
-    public function appointEditor(ServerRequestInterface $request): Editor
+    public function appointEditor(object $request): Editor
     {
         return new Editor(
             $this->createBrief($request)
         );
     }
 
-    private function createBrief(ServerRequestInterface $request): Brief
+    private function createBrief(object $request): Brief
     {
         $version = $this->askForCurrentVersion($request);
         $revisions = $this->getRevisionsForVersion($version);
@@ -58,7 +57,7 @@ final class ChiefEditor
         );
     }
 
-    private function askForCurrentVersion(ServerRequestInterface $request): ?string
+    private function askForCurrentVersion(object $request): ?string
     {
         return $this->versionResolver->resolve($request);
     }

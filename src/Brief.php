@@ -6,12 +6,11 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\RoutingRevision;
-use Psr\Http\Message\RequestInterface;
 
 final class Brief
 {
     /**
-     * @var RequestInterface
+     * @var object
      */
     private $request;
 
@@ -24,7 +23,7 @@ final class Brief
      * @param MessageRevision[] $revisions
      */
     public function __construct(
-        RequestInterface $request,
+        object $request,
         array $revisions
     ) {
         self::validateRevisions($revisions);
@@ -33,7 +32,7 @@ final class Brief
         $this->revisions = $revisions;
     }
 
-    public function request(): RequestInterface
+    public function request(): object
     {
         return $this->request;
     }

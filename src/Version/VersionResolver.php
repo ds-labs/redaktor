@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Version;
 
-use Psr\Http\Message\RequestInterface;
-
 interface VersionResolver
 {
-    public function resolve(RequestInterface $request): ?string;
+    public function resolve(object $request): ?string;
 }

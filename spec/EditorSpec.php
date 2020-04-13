@@ -12,21 +12,22 @@ use DSLabs\Redaktor\Registry\RoutingRevision;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use spec\DSLabs\Redaktor\Double\DummyRequest;
+use spec\DSLabs\Redaktor\Double\DummyResponse;
 
 /**
  * @see Editor
  */
 class EditorSpec extends ObjectBehavior
 {
-    function it_retrieves_the_same_request_if_the_brief_contains_no_revisions(
-        ServerRequestInterface $request
-    ) {
+    function it_retrieves_the_same_request_if_the_brief_contains_no_revisions()
+    {
         // Arrange
         $this->beConstructedWith(
-            self::createBrief($request, [])
+            self::createBrief(
+                $request = new DummyRequest(),
+                []
+            )
         );
 
         // Act
@@ -36,11 +37,10 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_retrieves_the_same_request_if_the_brief_contains_no_applicable_revisions(
-        ServerRequestInterface $request,
         MessageRevision $messageRevision
     ) {
         // Arrange
-        $messageRevision->isApplicable($request)->willReturn(false);
+        $messageRevision->isApplicable($request = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
             self::createBrief($request, [$messageRevision])
         );
@@ -52,12 +52,12 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_revises_a_request_based_on_applicable_revisions(
-        ServerRequestInterface $request,
-        ServerRequestInterface $revisedRequest,
         MessageRevision $messageRevisionA,
         MessageRevision $messageRevisionB
     ) {
         // Arrange
+        $request = new DummyRequest();
+        $revisedRequest = new DummyRequest();
         $messageRevisionA->isApplicable($request)->willReturn(false);
 
         $messageRevisionB->isApplicable($request)->willReturn(true);
@@ -76,13 +76,13 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_uses_the_revised_request_to_check_if_the_next_revision_is_applicable_when_revising_the_request(
-        ServerRequestInterface $request,
-        ServerRequestInterface $revisedRequestA,
-        ServerRequestInterface $revisedRequestB,
         MessageRevision $messageRevisionA,
         MessageRevision $messageRevisionB
     ) {
         // Arrange
+        $request = new DummyRequest();
+        $revisedRequestA = new DummyRequest();
+        $revisedRequestB = new DummyRequest();
         $messageRevisionA->isApplicable($request)->willReturn(true);
         $messageRevisionA->applyToRequest($request)->willReturn($revisedRequestA);
 
@@ -100,11 +100,10 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_disallows_unmutated_requests_from_applicable_revisions(
-        ServerRequestInterface $request,
         MessageRevision $messageRevision
     ) {
         // Arrange
-        $messageRevision->isApplicable($request)->willReturn(true);
+        $messageRevision->isApplicable($request = new DummyRequest())->willReturn(true);
         $messageRevision->applyToRequest($request)->willReturn($request);
 
         $brief = self::createBrief(
@@ -119,47 +118,46 @@ class EditorSpec extends ObjectBehavior
             ->during('reviseRequest');
     }
 
-    function it_retrieves_the_same_response_if_the_brief_contains_no_revisions(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) {
+    function it_retrieves_the_same_response_if_the_brief_contains_no_revisions()
+    {
         // Arrange
         $this->beConstructedWith(
-            self::createBrief($request, [])
+            self::createBrief(
+                new DummyRequest(),
+                []
+            )
         );
 
         // Act
-        $this->reviseResponse($response)
+        $this->reviseResponse($response = new DummyResponse())
             // Assert
             ->shouldBe($response);
     }
 
     function it_retrieves_the_same_response_if_the_brief_contains_no_applicable_revisions(
-        ServerRequestInterface $request,
-        MessageRevision $messageRevision,
-        ResponseInterface $response
+        MessageRevision $messageRevision
     ) {
         // Arrange
-        $messageRevision->isApplicable($request)->willReturn(false);
+        $messageRevision->isApplicable($request = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
             self::createBrief($request, [$messageRevision])
         );
 
         // Act
-        $this->reviseResponse($response)
+        $this->reviseResponse($response = new DummyResponse())
             // Assert
             ->shouldBe($response);
     }
 
     function it_revises_a_response_based_on_applicable_revisions(
-        ServerRequestInterface $request,
-        ServerRequestInterface $revisedRequest,
-        ResponseInterface $response,
-        ResponseInterface $revisedResponse,
         MessageRevision $messageRevisionA,
         MessageRevision $messageRevisionB
     ) {
         // Arrange
+        $request = new DummyRequest();
+        $revisedRequest = new DummyRequest();
+        $response = new DummyResponse();
+        $revisedResponse = new DummyResponse();
         $messageRevisionA->isApplicable($request)->willReturn(false);
 
         $messageRevisionB->isApplicable($request)->willReturn(true);
@@ -176,41 +174,36 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_does_not_double_revise_the_request_if_already_done_so(
-        ServerRequestInterface $request,
-        MessageRevision $messageRevision,
-        ResponseInterface $response
+        MessageRevision $messageRevision
     ) {
         // Arrange
         $messageRevision->isApplicable(Argument::any());
 
         $this->beConstructedWith(
             self::createBrief(
-                $request,
+                new DummyRequest(),
                 [$messageRevision]
             )
         );
 
         // Act
         $this->reviseRequest();
-        $this->reviseResponse($response);
+        $this->reviseResponse(new DummyResponse());
 
         // Assert
         $messageRevision->isApplicable(Argument::any())->shouldHaveBeenCalledOnce();
     }
 
     function it_disallows_unmutated_responses_from_applicable_revisions(
-        ServerRequestInterface $request,
-        ServerRequestInterface $revisedRequest,
-        ResponseInterface $response,
         MessageRevision $revision
     ) {
         // Arrange
         $revision->isApplicable(Argument::any())->willReturn(true);
-        $revision->applyToRequest(Argument::any())->willReturn($revisedRequest);
-        $revision->applyToResponse(Argument::any())->willReturn($response);
+        $revision->applyToRequest(Argument::any())->willReturn(new DummyRequest());
+        $revision->applyToResponse(Argument::any())->willReturn($response = new DummyResponse());
 
         $brief = self::createBrief(
-            $request,
+            new DummyRequest(),
             [$revision]
         );
         $this->beConstructedWith($brief);
@@ -222,13 +215,12 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_revises_routing(
-        ServerRequestInterface $request,
         RoutingRevision $routingRevisionA,
         RoutingRevision $routingRevisionB
     ) {
         // Arrange
         $brief = self::createBrief(
-            $request,
+            new DummyRequest(),
             [$routingRevisionA, $routingRevisionB]
         );
         $this->beConstructedWith($brief);
@@ -244,13 +236,12 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_ignores_routing_revisions_while_revising_request(
-        ServerRequestInterface $request,
         RoutingRevision $routingRevision
     ) {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $request,
+                new DummyRequest(),
                 [$routingRevision]
             )
         );
@@ -263,34 +254,31 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_ignores_routing_revisions_while_revising_response(
-        ServerRequestInterface $request,
-        RoutingRevision $routingRevision,
-        ResponseInterface $response
+        RoutingRevision $routingRevision
     ) {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $request,
+                new DummyRequest(),
                 [$routingRevision]
             )
         );
 
         // Act
-        $this->reviseResponse($response);
+        $this->reviseResponse(new DummyResponse());
 
         // Assert
         $routingRevision->__invoke(Argument::any())->shouldNotHaveBeenCalled();
     }
 
     function it_ignores_message_revisions_while_revising_routing(
-        ServerRequestInterface $request,
         MessageRevision $messageRevision,
         RoutingRevision $routingRevision
     ) {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $request,
+                new DummyRequest(),
                 [$messageRevision, $routingRevision]
             )
         );
@@ -304,17 +292,17 @@ class EditorSpec extends ObjectBehavior
     }
 
     /**
-     * @param RequestInterface|Collaborator $request
+     * @param object $request
      * @param MessageRevision[]|Collaborator[] $revisions
      */
-    private static function createBrief(RequestInterface $request, array $revisions): Brief
+    private static function createBrief(object $request, array $revisions): Brief
     {
         $revisions = array_map(static function(Collaborator $revision) {
             return $revision->getWrappedObject();
         }, $revisions);
 
         return new Brief(
-            $request->getWrappedObject(),
+            $request,
             $revisions
         );
     }
