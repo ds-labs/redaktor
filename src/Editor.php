@@ -9,9 +9,9 @@ use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\RoutingRevision;
 
 /**
- * Given a Brief is able to revise a Request and/or a Response.
+ * Given a Brief is able to revise the application routes, Request and/or Response.
  */
-final class Editor
+final class Editor implements EditorInterface
 {
     /**
      * @var Brief
@@ -35,7 +35,8 @@ final class Editor
     }
 
     /**
-     * @return \Generator|\Closure[]
+     * Yields routing revisions allowing the caller to pass in the router
+     * to revise the routes.
      */
     public function reviseRouting(): \Generator
     {

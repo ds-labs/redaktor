@@ -10,10 +10,7 @@ use DSLabs\Redaktor\Registry\MessageRevision;
 use DSLabs\Redaktor\Registry\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 
-/**
- * Based on the client's Request, appoints an editor to carry our the work.
- */
-final class ChiefEditor
+final class ChiefEditor implements ChiefEditorInterface
 {
     /**
      * @var Registry
@@ -36,7 +33,7 @@ final class ChiefEditor
     /**
      * Create the initial brief and assign it to the editor who will carry out the work.
      */
-    public function appointEditor(object $request): Editor
+    public function appointEditor(object $request): EditorInterface
     {
         return new Editor(
             $this->createBrief($request)
