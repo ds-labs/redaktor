@@ -9,7 +9,7 @@ interface EditorInterface
     /**
      * Creates a Generator containing all routing revisions.
      */
-    public function reviseRouting(): \Generator;
+    public function reviseRouting(iterable $routes): iterable;
 
     /**
      * Passes the request hold through the applicable revisions and returns

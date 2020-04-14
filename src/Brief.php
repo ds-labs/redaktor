@@ -15,12 +15,12 @@ final class Brief
     private $request;
 
     /**
-     * @var MessageRevision[]
+     * @var MessageRevision[]|RoutingRevision[]
      */
     private $revisions;
 
     /**
-     * @param MessageRevision[] $revisions
+     * @param MessageRevision[]|RoutingRevision[] $revisions
      */
     public function __construct(
         object $request,

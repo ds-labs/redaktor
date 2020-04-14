@@ -6,5 +6,5 @@ namespace DSLabs\Redaktor\Revision;
 
 interface RoutingRevision
 {
-    public function __invoke(object $routes): object;
+    public function __invoke(iterable $routes): iterable;
 }

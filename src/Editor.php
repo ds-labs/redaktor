@@ -35,16 +35,18 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Yields routing revisions allowing the caller to pass in the router
-     * to revise the routes.
+     * Loops through the revisions passing in the list of routes to
+     * routing revisions, giving them the chance to amend them.
      */
-    public function reviseRouting(): \Generator
+    public function reviseRouting(iterable $routes): iterable
     {
         foreach ($this->brief->revisions() as $revision) {
             if ($revision instanceof RoutingRevision) {
-                yield $revision;
+                $routes = $revision($routes);
             }
         }
+
+        return $routes;
     }
 
     /**

@@ -214,7 +214,7 @@ class EditorSpec extends ObjectBehavior
             ->during('reviseResponse', [$response]);
     }
 
-    function it_revises_routing(
+    function it_passes_the_routes_iterable_through_all_routing_revisions(
         RoutingRevision $routingRevisionA,
         RoutingRevision $routingRevisionB
     ) {
@@ -224,15 +224,17 @@ class EditorSpec extends ObjectBehavior
             [$routingRevisionA, $routingRevisionB]
         );
         $this->beConstructedWith($brief);
+        $routingRevisionA->__invoke(Argument::any())->willReturn($routesAfterRevisionA = ['foo']);
+        $routingRevisionB->__invoke(Argument::any())->willReturn($routesAfterRevisionB = ['foo', 'bar']);
 
         // Act
-        $routeConfigurators = $this->reviseRouting();
+        $revisedRoutes = $this->reviseRouting($originalRoutes = []);
 
         // Assert
-        $routeConfigurators->shouldIterateAs([
-            $routingRevisionA,
-            $routingRevisionB
-        ]);
+        $routingRevisionA->__invoke($originalRoutes)->shouldHaveBeenCalled();
+        $routingRevisionB->__invoke($routesAfterRevisionA)->shouldHaveBeenCalled();
+
+        $revisedRoutes->shouldBe($routesAfterRevisionB);
     }
 
     function it_ignores_routing_revisions_while_revising_request(
@@ -272,23 +274,21 @@ class EditorSpec extends ObjectBehavior
     }
 
     function it_ignores_message_revisions_while_revising_routing(
-        MessageRevision $messageRevision,
-        RoutingRevision $routingRevision
+        MessageRevision $messageRevision
     ) {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
                 new DummyRequest(),
-                [$messageRevision, $routingRevision]
+                [$messageRevision]
             )
         );
 
         // Act
-        $this->reviseRouting()
-            // Assert
-            ->shouldIterateAs([
-                $routingRevision
-            ]);
+        $this->reviseRouting([]);
+
+        // Assert
+        $messageRevision->isApplicable(Argument::any())->shouldNotHaveBeenCalled();
     }
 
     /**
