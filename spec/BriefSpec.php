@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Brief;
-use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Revision\MessageRevision;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
 

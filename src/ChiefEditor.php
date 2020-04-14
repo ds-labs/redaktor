@@ -6,8 +6,8 @@ namespace DSLabs\Redaktor;
 
 use Closure;
 use DSLabs\Redaktor\Registry\Registry;
-use DSLabs\Redaktor\Registry\MessageRevision;
-use DSLabs\Redaktor\Registry\Supersedes;
+use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 
 final class ChiefEditor implements ChiefEditorInterface

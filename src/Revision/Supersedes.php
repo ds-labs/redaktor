@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor\Registry;
+namespace DSLabs\Redaktor\Revision;
 
 interface Supersedes
 {

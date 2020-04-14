@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
-use DSLabs\Redaktor\Registry\MessageRevision;
-use DSLabs\Redaktor\Registry\RoutingRevision;
+use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RoutingRevision;
 
 final class Brief
 {

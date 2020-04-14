@@ -6,6 +6,8 @@ namespace DSLabs\Redaktor\Registry;
 
 use Closure;
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RoutingRevision;
 
 /**
  * List of in-memory registered revisions.

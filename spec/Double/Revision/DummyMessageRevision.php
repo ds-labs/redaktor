@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace spec\DSLabs\Redaktor\Double\Revision;
 
-use DSLabs\Redaktor\Registry\MessageRevision;
+use DSLabs\Redaktor\Revision\MessageRevision;
 
 final class DummyMessageRevision implements MessageRevision
 {
