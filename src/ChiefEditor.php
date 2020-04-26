@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use Closure;
+use DSLabs\Redaktor\Editor\Brief;
+use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\Supersedes;

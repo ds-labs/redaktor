@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace spec\DSLabs\Redaktor;
+namespace spec\DSLabs\Redaktor\Editor;
 
-use DSLabs\Redaktor\Brief;
-use DSLabs\Redaktor\Editor;
-use DSLabs\Redaktor\Exception\MutationException;
+use DSLabs\Redaktor\Editor\Brief;
+use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\MutationException;
 use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;

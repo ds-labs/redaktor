@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
+use DSLabs\Redaktor\Editor\EditorInterface;
+
 interface ChiefEditorInterface
 {
     /**

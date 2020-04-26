@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor;
+namespace DSLabs\Redaktor\Editor;
 
-use DSLabs\Redaktor\Exception\MutationException;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\RoutingRevision;

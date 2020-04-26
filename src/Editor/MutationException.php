@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor\Exception;
+namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;

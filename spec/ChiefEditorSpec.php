@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace spec\DSLabs\Redaktor;
 
-use DSLabs\Redaktor\Brief;
 use DSLabs\Redaktor\ChiefEditor;
-use DSLabs\Redaktor\Editor;
+use DSLabs\Redaktor\Editor\Brief;
+use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\Supersedes;
