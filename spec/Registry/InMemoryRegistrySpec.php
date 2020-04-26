@@ -24,7 +24,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldHaveType(InMemoryRegistry::class);
     }
 
-    function it_retrieves_an_empty_array_of_factories_if_the_resgistry_is_empty()
+    function it_retrieves_an_empty_of_revision_definitions_if_the_resgistry_is_empty()
     {
         // Arrange
         $this->beConstructedWith([]);
@@ -60,12 +60,12 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
     }
 
-    function it_supports_revision_closure_factory()
+    function it_supports_closure_as_revision_definition()
     {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $factory = static function() { },
+                $revisionDefinition = static function() { },
             ]
         ]);
 
@@ -75,7 +75,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Assert
         $revisions->shouldHaveCount(1);
         $revisions->shouldBe([
-            $factory,
+            $revisionDefinition,
         ]);
     }
 

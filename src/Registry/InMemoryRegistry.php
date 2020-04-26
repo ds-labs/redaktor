@@ -19,7 +19,7 @@ final class InMemoryRegistry implements Registry
     /**
      * @var array
      */
-    private $indexedRevisionFactories;
+    private $versionsDefinitions;
 
     /**
      * Receives a list of revisions indexed by its version. Expected format:
@@ -40,11 +40,11 @@ final class InMemoryRegistry implements Registry
      * ]
      */
     public function __construct(
-        array $indexedRevisionFactories = []
+        array $versionsDefinitions = []
     ) {
-        self::validate($indexedRevisionFactories);
+        self::validate($versionsDefinitions);
 
-        $this->indexedRevisionFactories = $indexedRevisionFactories;
+        $this->versionsDefinitions = $versionsDefinitions;
     }
 
     /**
@@ -54,7 +54,7 @@ final class InMemoryRegistry implements Registry
      */
     public function retrieveAll(): array
     {
-        return self::flatten($this->indexedRevisionFactories);
+        return self::flatten($this->versionsDefinitions);
     }
 
     /**
@@ -64,13 +64,13 @@ final class InMemoryRegistry implements Registry
      */
     public function retrieveSince(string $version): array
     {
-        $index = array_search($version, array_keys($this->indexedRevisionFactories), true);
-        $applicableRevisionsFactories = array_slice(
-            $this->indexedRevisionFactories,
+        $index = array_search($version, array_keys($this->versionsDefinitions), true);
+        $applicableVersionsDefinitions = array_slice(
+            $this->versionsDefinitions,
             $index
         );
 
-        return self::flatten($applicableRevisionsFactories);
+        return self::flatten($applicableVersionsDefinitions);
     }
 
     private static function validate(array $indexedRevisionFactories): void
@@ -118,12 +118,12 @@ final class InMemoryRegistry implements Registry
     }
 
     /**
-     * @param array[] $indexedRevisionFactories
+     * @param array[] $versionsDefinitions
      *
      * @return Closure[]
      */
-    private static function flatten(array $indexedRevisionFactories): array
+    private static function flatten(array $versionsDefinitions): array
     {
-        return array_reduce($indexedRevisionFactories, 'array_merge', []);
+        return array_reduce($versionsDefinitions, 'array_merge', []);
     }
 }
