@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace spec\DSLabs\Redaktor\Registry;
 
-use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
-use DSLabs\Redaktor\Revision\MessageRevision;
-use DSLabs\Redaktor\Revision\RequestRevision;
-use DSLabs\Redaktor\Revision\ResponseRevision;
+use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;

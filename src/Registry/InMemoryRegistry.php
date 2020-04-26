@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor\Registry;
 
 use Closure;
-use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;

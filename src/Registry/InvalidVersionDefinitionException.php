@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor\Exception;
+namespace DSLabs\Redaktor\Registry;
 
 use InvalidArgumentException;
 
