@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RequestRevision;
+use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 
 final class Brief
@@ -20,7 +22,7 @@ final class Brief
     private $revisions;
 
     /**
-     * @param MessageRevision[]|RoutingRevision[] $revisions
+     * @param RequestRevision[]|ResponseRevision[]|RoutingRevision[] $revisions
      */
     public function __construct(
         object $request,
@@ -49,7 +51,8 @@ final class Brief
     {
         foreach ($revisions as $revision) {
             if (
-                !($revision instanceof MessageRevision
+                !($revision instanceof RequestRevision
+                || $revision instanceof ResponseRevision
                 || $revision instanceof RoutingRevision)
             ) {
                 $type = is_object($revision)

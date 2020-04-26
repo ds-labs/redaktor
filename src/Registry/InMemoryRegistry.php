@@ -7,6 +7,8 @@ namespace DSLabs\Redaktor\Registry;
 use Closure;
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RequestRevision;
+use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 
 /**
@@ -110,7 +112,8 @@ final class InMemoryRegistry implements Registry
 
         $interfaces = class_implements($revision);
 
-        return in_array(MessageRevision::class, $interfaces, true)
+        return in_array(RequestRevision::class, $interfaces, true)
+            || in_array(ResponseRevision::class, $interfaces, true)
             || in_array(RoutingRevision::class, $interfaces, true);
     }
 

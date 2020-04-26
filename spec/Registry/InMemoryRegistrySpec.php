@@ -6,8 +6,13 @@ namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Exception\InvalidVersionDefinitionException;
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
+use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RequestRevision;
+use DSLabs\Redaktor\Revision\ResponseRevision;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
+use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
+use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
 
 /**
  * @see InMemoryRegistry
@@ -32,11 +37,13 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldHaveCount(0);
     }
 
-    function it_supports_class_name_revision()
+    function it_supports_class_name_revisions()
     {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
+                DummyRequestRevision::class,
+                DummyResponseRevision::class,
                 DummyMessageRevision::class,
             ]
         ]);
@@ -45,8 +52,10 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions = $this->retrieveAll();
 
         // Assert
-        $revisions->shouldHaveCount(1);
+        $revisions->shouldHaveCount(3);
         $revisions->shouldBe([
+            DummyRequestRevision::class,
+            DummyResponseRevision::class,
             DummyMessageRevision::class,
         ]);
     }
@@ -85,16 +94,16 @@ class InMemoryRegistrySpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_retrieves_all_revisions_in_the_registry()
+    function it_retrieves_all_revisions_from_versions()
     {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = DummyMessageRevision::class,
+                $revisionA = DummyRequestRevision::class,
                 $revisionB = DummyMessageRevision::class,
             ],
             'bar' => [
-                $revisionC = DummyMessageRevision::class,
+                $revisionC = DummyResponseRevision::class,
             ],
         ]);
 
@@ -110,7 +119,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
     }
 
-    function it_retrieves_factories_since_a_given_version()
+    function it_retrieves_revisions_since_a_given_version()
     {
         // Arrange
         $this->beConstructedWith([

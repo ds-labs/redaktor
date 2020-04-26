@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Exception\MutationException;
-use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\RequestRevision;
+use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 
 /**
@@ -24,7 +25,7 @@ final class Editor implements EditorInterface
     private $requestIsRevised = false;
 
     /**
-     * @var MessageRevision[]|RoutingRevision[]
+     * @var RequestRevision[]|ResponseRevision[]
      */
     private $applicableRevisions = [];
 
@@ -55,27 +56,33 @@ final class Editor implements EditorInterface
     public function reviseRequest(): object
     {
         $revisions = array_filter($this->brief->revisions(), static function($revision): bool {
-            return $revision instanceof MessageRevision;
+            return $revision instanceof RequestRevision
+                || $revision instanceof ResponseRevision;
         });
 
         $upToDateRequest = array_reduce(
             $revisions,
             function(
                 object $request,
-                MessageRevision $revision
+                $revision
             ) {
+                /** @var RequestRevision|ResponseRevision $revision */
                 if (!$revision->isApplicable($request)) {
                     return $request;
                 }
 
                 $this->applicableRevisions[] = $revision;
+
+                if (!$revision instanceof RequestRevision) {
+                    return $request;
+                }
+
                 $revisedRequest = $revision->applyToRequest($request);
                 if ($revisedRequest === $request) {
                     throw MutationException::inRevision($revision);
                 }
 
                 return $revisedRequest;
-
             },
             $this->brief->request()
         );
@@ -97,7 +104,12 @@ final class Editor implements EditorInterface
 
         return array_reduce(
             array_reverse($this->applicableRevisions),
-            static function($response, MessageRevision $revision): object {
+            static function($response, $revision): object {
+
+                if (!$revision instanceof ResponseRevision) {
+                    return $response;
+                }
+
                 $revisedResponse = $revision->applyToResponse($response);
 
                 if ($revisedResponse === $response) {

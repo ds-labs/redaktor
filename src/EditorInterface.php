@@ -7,7 +7,8 @@ namespace DSLabs\Redaktor;
 interface EditorInterface
 {
     /**
-     * Creates a Generator containing all routing revisions.
+     * Passes the routes through every routing revision and returns the
+     * revised routes.
      */
     public function reviseRouting(iterable $routes): iterable;
 
