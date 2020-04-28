@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor\Registry;
 
 use Closure;
-use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
@@ -85,10 +84,11 @@ final class InMemoryRegistry implements Registry
                 if (!self::isRevisionDefinition($revisionDefinition)) {
                     throw new InvalidVersionDefinitionException(
                         sprintf(
-                            'Expected %s, or instance of %s or %s. Got: %s',
-                            Closure::class,
+                            'Expected instance of %s, %s, %s or %s. Got: %s.',
                             RoutingRevision::class,
-                            MessageRevision::class,
+                            RequestRevision::class,
+                            ResponseRevision::class,
+                            Closure::class,
                             is_object($revisionDefinition)
                                 ? get_class($revisionDefinition)
                                 : $revisionDefinition

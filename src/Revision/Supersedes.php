@@ -6,5 +6,5 @@ namespace DSLabs\Redaktor\Revision;
 
 interface Supersedes
 {
-    public function supersedes(MessageRevision $revision): bool;
+    public function supersedes(Revision $revision): bool;
 }

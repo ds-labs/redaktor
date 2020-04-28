@@ -371,7 +371,7 @@ class EditorSpec extends ObjectBehavior
 
     /**
      * @param object $request
-     * @param MessageRevision[]|Collaborator[] $revisions
+     * @param Revision[]|Collaborator[] $revisions
      */
     private static function createBrief(object $request, array $revisions): Brief
     {

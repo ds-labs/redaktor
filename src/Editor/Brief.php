@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Editor;
 
-use DSLabs\Redaktor\Revision\MessageRevision;
-use DSLabs\Redaktor\Revision\RequestRevision;
-use DSLabs\Redaktor\Revision\ResponseRevision;
-use DSLabs\Redaktor\Revision\RoutingRevision;
+use DSLabs\Redaktor\Revision\Revision;
 
 final class Brief
 {
@@ -17,12 +14,12 @@ final class Brief
     private $request;
 
     /**
-     * @var MessageRevision[]|RoutingRevision[]
+     * @var Revision[]
      */
     private $revisions;
 
     /**
-     * @param RequestRevision[]|ResponseRevision[]|RoutingRevision[] $revisions
+     * @param Revision[] $revisions
      */
     public function __construct(
         object $request,
@@ -40,7 +37,7 @@ final class Brief
     }
 
     /**
-     * @return MessageRevision[]
+     * @return Revision[]
      */
     public function revisions(): array
     {
@@ -50,19 +47,16 @@ final class Brief
     private static function validateRevisions(array $revisions): void
     {
         foreach ($revisions as $revision) {
-            if (
-                !($revision instanceof RequestRevision
-                || $revision instanceof ResponseRevision
-                || $revision instanceof RoutingRevision)
-            ) {
+            if (!$revision instanceof Revision) {
+
                 $type = is_object($revision)
                     ? get_class($revision)
                     : gettype($revision);
 
                 throw new \InvalidArgumentException(
                     sprintf(
-                        '%s instance expected. Got: %s.',
-                        MessageRevision::class,
+                        'Expected instance of %s. Got: %s.',
+                        Revision::class,
                         $type
                     )
                 );

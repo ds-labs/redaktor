@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Revision;
 
-interface ResponseRevision
+interface ResponseRevision extends Revision
 {
     /**
      * Evaluates if the request is applicable to current revision.

@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Editor\Brief;
-use DSLabs\Redaktor\Revision\RequestRevision;
-use DSLabs\Redaktor\Revision\ResponseRevision;
-use DSLabs\Redaktor\Revision\RoutingRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
 
@@ -47,17 +45,15 @@ class BriefSpec extends ObjectBehavior
     }
 
     function it_retrieves_list_of_revisions(
-        RequestRevision $requestRevision,
-        ResponseRevision $responseRevision,
-        RoutingRevision $routingRevision
+        Revision $revisionA,
+        Revision $revisionB
     ) {
         // Arrange
         $this->beConstructedWith(
             $request = new DummyRequest(),
             [
-                $requestRevision,
-                $responseRevision,
-                $routingRevision,
+                $revisionA,
+                $revisionB,
             ]
         );
 
@@ -65,9 +61,8 @@ class BriefSpec extends ObjectBehavior
         $this->revisions()
             // Assert
             ->shouldBe([
-                $requestRevision,
-                $responseRevision,
-                $routingRevision,
+                $revisionA,
+                $revisionB,
             ]);
     }
 }

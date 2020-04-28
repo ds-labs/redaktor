@@ -6,10 +6,11 @@ namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\Revision\Revision;
 use PhpSpec\ObjectBehavior;
-use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
+use spec\DSLabs\Redaktor\Double\Revision\DummyRoutingRevision;
 
 /**
  * @see InMemoryRegistry
@@ -21,7 +22,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldHaveType(InMemoryRegistry::class);
     }
 
-    function it_retrieves_an_empty_of_revision_definitions_if_the_resgistry_is_empty()
+    function it_retrieves_an_empty_list_of_revision_definitions_if_the_registry_is_empty()
     {
         // Arrange
         $this->beConstructedWith([]);
@@ -34,30 +35,24 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $revisions->shouldHaveCount(0);
     }
 
-    function it_supports_class_name_revisions()
+    function it_supports_class_name_revision_definitions()
     {
         // Arrange
         $this->beConstructedWith([
             'foo' => [
+                DummyRoutingRevision::class,
                 DummyRequestRevision::class,
                 DummyResponseRevision::class,
-                DummyMessageRevision::class,
-            ]
+            ],
         ]);
-
-        // Act
-        $revisions = $this->retrieveAll();
 
         // Assert
-        $revisions->shouldHaveCount(3);
-        $revisions->shouldBe([
-            DummyRequestRevision::class,
-            DummyResponseRevision::class,
-            DummyMessageRevision::class,
-        ]);
+        $this->shouldNotThrow(\Throwable::class)
+            // Act
+            ->duringInstantiation();
     }
 
-    function it_supports_closure_as_revision_definition()
+    function it_supports_closure_revision_definitions()
     {
         // Arrange
         $this->beConstructedWith([
@@ -66,14 +61,10 @@ class InMemoryRegistrySpec extends ObjectBehavior
             ]
         ]);
 
-        // Act
-        $revisions = $this->retrieveAll();
-
         // Assert
-        $revisions->shouldHaveCount(1);
-        $revisions->shouldBe([
-            $revisionDefinition,
-        ]);
+        $this->shouldNotThrow(\Throwable::class)
+            // Act
+            ->duringInstantiation();
     }
 
     function it_disallow_non_class_name_strings()
@@ -97,7 +88,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->beConstructedWith([
             'foo' => [
                 $revisionA = DummyRequestRevision::class,
-                $revisionB = DummyMessageRevision::class,
+                $revisionB = DummyRoutingRevision::class,
             ],
             'bar' => [
                 $revisionC = DummyResponseRevision::class,
@@ -121,14 +112,14 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionA = DummyMessageRevision::class,
+                $revisionA = DummyRequestRevision::class,
             ],
             'bar' => [
-                $revisionB = DummyMessageRevision::class,
-                $revisionC = DummyMessageRevision::class,
+                $revisionB = DummyRequestRevision::class,
+                $revisionC = DummyRequestRevision::class,
             ],
             'baz' => [
-                $revisionD = DummyMessageRevision::class,
+                $revisionD = DummyRequestRevision::class,
             ],
         ]);
 

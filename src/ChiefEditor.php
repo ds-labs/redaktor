@@ -9,7 +9,7 @@ use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Registry\Registry;
-use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 
@@ -72,7 +72,7 @@ final class ChiefEditor implements ChiefEditorInterface
     /**
      * @param Closure[]|string[] $revisionDefinitions
      *
-     * @return MessageRevision[]
+     * @return Revision[]
      */
     private static function open(array $revisionDefinitions): array
     {
@@ -83,14 +83,13 @@ final class ChiefEditor implements ChiefEditorInterface
             }
 
             return new $revisionDefinition();
-
         }, $revisionDefinitions);
     }
 
     /**
-     * @param MessageRevision[] $revisions
+     * @param Revision[] $revisions
      *
-     * @return MessageRevision[]
+     * @return Revision[]
      */
     private static function filterSupersededRevisions(array $revisions): array
     {
@@ -102,7 +101,7 @@ final class ChiefEditor implements ChiefEditorInterface
         // @todo Ensure `$initialRevision` does not implement `Supersedes` interface.
         return array_reduce(
             $revisions,
-            static function (array $squashedRevisions, MessageRevision $currentRevision): array {
+            static function (array $squashedRevisions, Revision $currentRevision): array {
 
                 if ($currentRevision instanceof Supersedes
                     && $currentRevision->supersedes(

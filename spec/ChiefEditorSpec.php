@@ -8,13 +8,12 @@ use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Registry\Registry;
-use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
-use spec\DSLabs\Redaktor\Double\Revision\DummyMessageRevision;
 
 /**
  * @see ChiefEditor
@@ -84,8 +83,8 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_discards_superseded_revisions(
         Registry $registry,
-        MessageRevision $supersededRevision,
-        MessageRevision $supersederRevision
+        Revision $supersededRevision,
+        Revision $supersederRevision
     ) {
         // Arrange
         $supersederRevision->implement(Supersedes::class);
@@ -119,7 +118,7 @@ class ChiefEditorSpec extends ObjectBehavior
     function it_resolves_closure_revision_definition(
         VersionResolver $versionResolver,
         Registry $registry,
-        MessageRevision $revisionA
+        Revision $revisionA
     ) {
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn(null);
@@ -152,7 +151,7 @@ class ChiefEditorSpec extends ObjectBehavior
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn(null);
         $registry->retrieveAll()->willReturn([
-            DummyMessageRevision::class
+            DummyRevision::class,
         ]);
 
         // Act
@@ -164,10 +163,12 @@ class ChiefEditorSpec extends ObjectBehavior
                 new Brief(
                     $request,
                     [
-                        new DummyMessageRevision(),
+                        new DummyRevision(),
                     ]
                 )
             )
         );
     }
 }
+
+class DummyRevision implements Revision {}
