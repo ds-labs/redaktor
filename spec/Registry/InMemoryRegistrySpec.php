@@ -6,7 +6,6 @@ namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
-use DSLabs\Redaktor\Revision\Revision;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
@@ -57,7 +56,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                $revisionDefinition = static function() { },
+                static function() { },
             ]
         ]);
 

@@ -8,12 +8,15 @@ use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Registry\Registry;
+use DSLabs\Redaktor\Registry\RevisionDefinition;
+use DSLabs\Redaktor\Registry\RevisionResolver;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
+use spec\DSLabs\Redaktor\Double\Revision\DummyRevision;
 
 /**
  * @see ChiefEditor
@@ -83,21 +86,27 @@ class ChiefEditorSpec extends ObjectBehavior
 
     function it_discards_superseded_revisions(
         Registry $registry,
+        VersionResolver $versionResolver,
         Revision $supersededRevision,
-        Revision $supersederRevision
+        Revision $supersederRevision,
+        RevisionResolver $revisionResolver
     ) {
         // Arrange
+        $this->beConstructedWith(
+            $registry,
+            $versionResolver,
+            $revisionResolver
+        );
+
         $supersederRevision->implement(Supersedes::class);
-        $supersederRevision->supersedes($supersededRevision)->willReturn(true);
+        $supersederRevision->supersedes(Argument::any())->willReturn(true);
 
         $registry->retrieveAll()->willReturn([
-            static function() use ($supersededRevision) {
-                return $supersededRevision->getWrappedObject();
-            },
-            static function() use ($supersederRevision) {
-                return $supersederRevision->getWrappedObject();
-            },
+            new RevisionDefinition(DummyRevision::class),
+            new RevisionDefinition(DummyRevision::class),
         ]);
+
+        $revisionResolver->resolve(Argument::any())->willReturn($supersededRevision, $supersederRevision);
 
         // Act
         $editor = $this->appointEditor($request = new DummyRequest());
@@ -115,60 +124,25 @@ class ChiefEditorSpec extends ObjectBehavior
         );
     }
 
-    function it_resolves_closure_revision_definition(
-        VersionResolver $versionResolver,
+    function it_delegates_the_revision_instantiation_to_the_revision_resolver(
         Registry $registry,
-        Revision $revisionA
-    ) {
-        // Arrange
-        $versionResolver->resolve(Argument::any())->willReturn(null);
-        $registry->retrieveAll()->willReturn([
-            static function () use ($revisionA) {
-                return $revisionA->getWrappedObject();
-            }
-        ]);
-
-        // Act
-        $editor = $this->appointEditor($request = new DummyRequest());
-
-        // Assert
-        $editor->shouldBeLike(
-            new Editor(
-                new Brief(
-                    $request,
-                    [
-                        $revisionA->getWrappedObject(),
-                    ]
-                )
-            )
-        );
-    }
-
-    function it_resolves_class_name_revision_definition(
         VersionResolver $versionResolver,
-        Registry $registry
+        RevisionResolver $revisionResolver,
+        Revision $revision
     ) {
         // Arrange
-        $versionResolver->resolve(Argument::any())->willReturn(null);
+        $this->beConstructedWith($registry, $versionResolver, $revisionResolver);
+
         $registry->retrieveAll()->willReturn([
-            DummyRevision::class,
+            $revisionDefinition = new RevisionDefinition(DummyRevision::class),
         ]);
+        $revisionResolver->resolve(Argument::any())->willReturn($revision);
 
         // Act
-        $editor = $this->appointEditor($request = new DummyRequest());
+        $this->appointEditor(new DummyRequest());
 
         // Assert
-        $editor->shouldBeLike(
-            new Editor(
-                new Brief(
-                    $request,
-                    [
-                        new DummyRevision(),
-                    ]
-                )
-            )
-        );
+        $revisionResolver->resolve($revisionDefinition)
+            ->shouldHaveBeenCalled();
     }
 }
-
-class DummyRevision implements Revision {}

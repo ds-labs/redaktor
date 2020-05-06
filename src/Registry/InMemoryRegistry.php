@@ -7,6 +7,7 @@ namespace DSLabs\Redaktor\Registry;
 use Closure;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 
 /**
@@ -71,9 +72,9 @@ final class InMemoryRegistry implements Registry
         return self::flatten($applicableVersionsDefinitions);
     }
 
-    private static function validate(array $indexedRevisionFactories): void
+    private static function validate(array $versionDefinitions): void
     {
-        foreach ($indexedRevisionFactories as $version => $revisionDefinitions) {
+        foreach ($versionDefinitions as $version => $revisionDefinitions) {
             if (!$revisionDefinitions) {
                 throw new InvalidVersionDefinitionException(
                     'Empty version definition.' // @todo - Improve message

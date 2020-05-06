@@ -9,6 +9,9 @@ use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Registry\Registry;
+use DSLabs\Redaktor\Registry\RevisionDefinition;
+use DSLabs\Redaktor\Registry\RevisionResolver;
+use DSLabs\Redaktor\Registry\SimpleRevisionResolver;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
@@ -25,16 +28,23 @@ final class ChiefEditor implements ChiefEditorInterface
      */
     private $versionResolver;
 
+    /**
+     * @var RevisionResolver|null
+     */
+    private $revisionResolver;
+
     public function __construct(
         Registry $registry,
-        VersionResolver $versionResolver
+        VersionResolver $versionResolver,
+        RevisionResolver $revisionResolver = null
     ) {
         $this->registry = $registry;
         $this->versionResolver = $versionResolver;
+        $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
     }
 
     /**
-     * Create the initial brief and assign it to the editor who will carry out the work.
+     * Create the brief and assign it to the editor who will carry out the work.
      */
     public function appointEditor(object $request): EditorInterface
     {
@@ -46,14 +56,15 @@ final class ChiefEditor implements ChiefEditorInterface
     private function createBrief(object $request): Brief
     {
         $version = $this->askForCurrentVersion($request);
-        $revisions = $this->getRevisionsForVersion($version);
-        $revisionInstances = self::filterSupersededRevisions(
-            self::open($revisions)
+        $revisionsDefinitions = $this->getRevisionDefinitionsSinceVersion($version);
+
+        $revisions = self::filterRevisions(
+            $this->open($revisionsDefinitions)
         );
 
         return new Brief(
             $request,
-            $revisionInstances
+            $revisions
         );
     }
 
@@ -62,7 +73,7 @@ final class ChiefEditor implements ChiefEditorInterface
         return $this->versionResolver->resolve($request);
     }
 
-    private function getRevisionsForVersion(?string $version): array
+    private function getRevisionDefinitionsSinceVersion(?string $version): array
     {
         return $version === null
             ? $this->registry->retrieveAll()
@@ -70,19 +81,15 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
-     * @param Closure[]|string[] $revisionDefinitions
+     * @param RevisionDefinition[] $revisionDefinitions
      *
      * @return Revision[]
      */
-    private static function open(array $revisionDefinitions): array
+    private function open(array $revisionDefinitions): array
     {
-        return array_map(static function ($revisionDefinition) {
+        return array_map(function (RevisionDefinition $revisionDefinition) {
 
-            if ($revisionDefinition instanceof Closure) {
-                return $revisionDefinition();
-            }
-
-            return new $revisionDefinition();
+            return $this->revisionResolver->resolve($revisionDefinition);
         }, $revisionDefinitions);
     }
 
@@ -91,7 +98,7 @@ final class ChiefEditor implements ChiefEditorInterface
      *
      * @return Revision[]
      */
-    private static function filterSupersededRevisions(array $revisions): array
+    private static function filterRevisions(array $revisions): array
     {
         if (empty($revisions)) {
             return $revisions;
