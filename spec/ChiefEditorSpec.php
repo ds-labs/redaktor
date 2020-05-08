@@ -7,6 +7,8 @@ namespace spec\DSLabs\Redaktor;
 use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\EditorInterface;
+use DSLabs\Redaktor\HR\HeadHunter;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -144,5 +146,22 @@ class ChiefEditorSpec extends ObjectBehavior
         // Assert
         $revisionResolver->resolve($revisionDefinition)
             ->shouldHaveBeenCalled();
+    }
+
+    function it_can_speak_to_a_head_hunter_to_get_an_specialised_editor(
+        Registry $registry,
+        HeadHunter $headHunter,
+        EditorInterface $specialisedEditor
+    ) {
+        // Arrange
+        $registry->retrieveAll()->willReturn([]);
+        $headHunter->hireEditor(Argument::any())->willReturn($specialisedEditor);
+
+        // Act
+        $this->speakTo($headHunter);
+        $editor = $this->appointEditor(new DummyRequest());
+        
+        // Assert
+        $editor->shouldBe($specialisedEditor);
     }
 }

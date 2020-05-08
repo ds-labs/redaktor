@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
-use Closure;
 use DSLabs\Redaktor\Editor\Brief;
-use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
+use DSLabs\Redaktor\HR\GenericHeadHunter;
+use DSLabs\Redaktor\HR\HeadHunter;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -33,6 +33,11 @@ final class ChiefEditor implements ChiefEditorInterface
      */
     private $revisionResolver;
 
+    /**
+     * @var HeadHunter
+     */
+    private $headHunter;
+
     public function __construct(
         Registry $registry,
         VersionResolver $versionResolver,
@@ -41,14 +46,25 @@ final class ChiefEditor implements ChiefEditorInterface
         $this->registry = $registry;
         $this->versionResolver = $versionResolver;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
+        $this->headHunter = new GenericHeadHunter();
     }
 
     /**
-     * Create the brief and assign it to the editor who will carry out the work.
+     * Gets in touch with the HeadHunter that will be in charge of hiring.
+     */
+    public function speakTo(HeadHunter $headHunter): ChiefEditorInterface
+    {
+        $this->headHunter = $headHunter;
+
+        return $this;
+    }
+
+    /**
+     * Create the brief and hire an editor to carry out the work.
      */
     public function appointEditor(object $request): EditorInterface
     {
-        return new Editor(
+        return $this->headHunter->hireEditor(
             $this->createBrief($request)
         );
     }

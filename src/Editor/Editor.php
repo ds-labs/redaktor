@@ -6,10 +6,11 @@ namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 
 /**
- * Given a Brief is able to revise the application routes, Request and/or Response.
+ * Given a Brief is able to revise the application routes, request and/or response.
  */
 final class Editor implements EditorInterface
 {
@@ -32,6 +33,24 @@ final class Editor implements EditorInterface
         Brief $brief
     ) {
         $this->brief = $brief;
+    }
+
+    /**
+     * Retrieves the request received on the briefing.
+     */
+    public function getBriefedRequest(): object
+    {
+        return $this->brief->request();
+    }
+
+    /**
+     * Retrieves the list or revisions received on the briefing.
+     *
+     * @return Revision[]
+     */
+    public function getBriefedRevisions(): array
+    {
+        return $this->brief->revisions();
     }
 
     /**

@@ -10,6 +10,7 @@ use DSLabs\Redaktor\Editor\MutationException;
 use DSLabs\Redaktor\Revision\MessageRevision;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
@@ -367,6 +368,43 @@ class EditorSpec extends ObjectBehavior
         // Assert
         $messageRevision->applyToRequest($originalRequest)->shouldHaveBeenCalled();
         $messageRevision->applyToResponse($originalResponse)->shouldHaveBeenCalled();
+    }
+
+    function it_retrieves_the_briefed_request()
+    {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                $briefedRequest = new DummyRequest(),
+                []
+            )
+        );
+
+        // Act
+        $request = $this->getBriefedRequest();
+
+        // Assert
+        $request->shouldBe($briefedRequest);
+    }
+
+    function it_retrieves_the_briefed_revisions(
+        Revision $revision
+    ) {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                new DummyRequest(),
+                $briefedRevisions = [
+                    $revision
+                ]
+            )
+        );
+
+        // Act
+        $revisions = $this->getBriefedRevisions();
+
+        // Assert
+        $revisions->shouldBe($briefedRevisions);
     }
 
     /**
