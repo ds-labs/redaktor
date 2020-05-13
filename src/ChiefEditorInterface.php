@@ -3,14 +3,14 @@
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\HR\HeadHunter;
+use DSLabs\Redaktor\HumanResources\HumanResources;
 
 interface ChiefEditorInterface
 {
     /**
-     * Speaks to the HeadHunter that will be in charge of hiring.
+     * Get in touch with Human Resources to hire an editor.
      */
-    public function speakTo(HeadHunter $headHunter): self;
+    public function speakTo(HumanResources $humanResources): self;
 
     /**
      * Appoint the editor who will carry out the work.

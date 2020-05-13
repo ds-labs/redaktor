@@ -6,8 +6,8 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\HR\GenericHeadHunter;
-use DSLabs\Redaktor\HR\HeadHunter;
+use DSLabs\Redaktor\HumanResources\HumanResourcesDepartment;
+use DSLabs\Redaktor\HumanResources\HumanResources;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -34,9 +34,9 @@ final class ChiefEditor implements ChiefEditorInterface
     private $revisionResolver;
 
     /**
-     * @var HeadHunter
+     * @var HumanResources
      */
-    private $headHunter;
+    private $humanResources;
 
     public function __construct(
         Registry $registry,
@@ -46,15 +46,15 @@ final class ChiefEditor implements ChiefEditorInterface
         $this->registry = $registry;
         $this->versionResolver = $versionResolver;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
-        $this->headHunter = new GenericHeadHunter();
+        $this->humanResources = new HumanResourcesDepartment();
     }
 
     /**
-     * Gets in touch with the HeadHunter that will be in charge of hiring.
+     * Get in touch with Human Resources to hire an specialised editor.
      */
-    public function speakTo(HeadHunter $headHunter): ChiefEditorInterface
+    public function speakTo(HumanResources $humanResources): ChiefEditorInterface
     {
-        $this->headHunter = $headHunter;
+        $this->humanResources = $humanResources;
 
         return $this;
     }
@@ -64,7 +64,7 @@ final class ChiefEditor implements ChiefEditorInterface
      */
     public function appointEditor(object $request): EditorInterface
     {
-        return $this->headHunter->hireEditor(
+        return $this->humanResources->hireEditor(
             $this->createBrief($request)
         );
     }

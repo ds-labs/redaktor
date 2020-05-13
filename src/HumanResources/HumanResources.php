@@ -1,11 +1,11 @@
 <?php
 
-namespace DSLabs\Redaktor\HR;
+namespace DSLabs\Redaktor\HumanResources;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
 
-interface HeadHunter
+interface HumanResources
 {
     /**
      * Hire the editor that will carry out the work.

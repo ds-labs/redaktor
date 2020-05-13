@@ -23,6 +23,43 @@ use spec\DSLabs\Redaktor\Double\DummyResponse;
  */
 class EditorSpec extends ObjectBehavior
 {
+    function it_retrieves_the_briefed_request()
+    {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                $briefedRequest = new DummyRequest(),
+                []
+            )
+        );
+
+        // Act
+        $request = $this->retrieveBriefedRequest();
+
+        // Assert
+        $request->shouldBe($briefedRequest);
+    }
+
+    function it_retrieves_the_briefed_revisions(
+        Revision $revision
+    ) {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(
+                new DummyRequest(),
+                $briefedRevisions = [
+                    $revision
+                ]
+            )
+        );
+
+        // Act
+        $revisions = $this->retrieveBriefedRevisions();
+
+        // Assert
+        $revisions->shouldBe($briefedRevisions);
+    }
+
     function it_retrieves_the_same_request_if_the_brief_contains_no_revisions()
     {
         // Arrange
@@ -368,43 +405,6 @@ class EditorSpec extends ObjectBehavior
         // Assert
         $messageRevision->applyToRequest($originalRequest)->shouldHaveBeenCalled();
         $messageRevision->applyToResponse($originalResponse)->shouldHaveBeenCalled();
-    }
-
-    function it_retrieves_the_briefed_request()
-    {
-        // Arrange
-        $this->beConstructedWith(
-            self::createBrief(
-                $briefedRequest = new DummyRequest(),
-                []
-            )
-        );
-
-        // Act
-        $request = $this->getBriefedRequest();
-
-        // Assert
-        $request->shouldBe($briefedRequest);
-    }
-
-    function it_retrieves_the_briefed_revisions(
-        Revision $revision
-    ) {
-        // Arrange
-        $this->beConstructedWith(
-            self::createBrief(
-                new DummyRequest(),
-                $briefedRevisions = [
-                    $revision
-                ]
-            )
-        );
-
-        // Act
-        $revisions = $this->getBriefedRevisions();
-
-        // Assert
-        $revisions->shouldBe($briefedRevisions);
     }
 
     /**

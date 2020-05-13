@@ -8,7 +8,8 @@ use DSLabs\Redaktor\ChiefEditor;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\HR\HeadHunter;
+use DSLabs\Redaktor\HumanResources\EditorProvider;
+use DSLabs\Redaktor\HumanResources\HumanResources;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -148,17 +149,17 @@ class ChiefEditorSpec extends ObjectBehavior
             ->shouldHaveBeenCalled();
     }
 
-    function it_can_speak_to_a_head_hunter_to_get_an_specialised_editor(
+    function it_can_speak_to_the_human_resources_department_to_get_an_specialised_editor(
         Registry $registry,
-        HeadHunter $headHunter,
+        HumanResources $humanResources,
         EditorInterface $specialisedEditor
     ) {
         // Arrange
         $registry->retrieveAll()->willReturn([]);
-        $headHunter->hireEditor(Argument::any())->willReturn($specialisedEditor);
+        $humanResources->hireEditor(Argument::any())->willReturn($specialisedEditor);
 
         // Act
-        $this->speakTo($headHunter);
+        $this->speakTo($humanResources);
         $editor = $this->appointEditor(new DummyRequest());
         
         // Assert

@@ -5,6 +5,16 @@ namespace DSLabs\Redaktor\Editor;
 interface EditorInterface
 {
     /**
+     * Retrieves the request passed on in the briefing.
+     */
+    public function retrieveBriefedRequest(): object;
+
+    /**
+     * Retrieves the list of revisions passed on in the briefing.
+     */
+    public function retrieveBriefedRevisions(): array;
+
+    /**
      * Passes the routes through every routing revision and returns the
      * revised routes.
      */

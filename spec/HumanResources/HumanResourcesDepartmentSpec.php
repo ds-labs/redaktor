@@ -1,17 +1,16 @@
 <?php
 
-namespace spec\DSLabs\Redaktor\HR;
+namespace spec\DSLabs\Redaktor\HumanResources;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
-use DSLabs\Redaktor\HR\GenericHeadHunter;
 use DSLabs\Redaktor\Revision\Revision;
 use PhpSpec\ObjectBehavior;
 
 /**
- * @see GenericHeadHunter
+ * @see HumanResourcesDepartment
  */
-class GenericHeadHunterSpec extends ObjectBehavior
+class HumanResourcesDepartmentSpec extends ObjectBehavior
 {
     function it_hires_a_generic_editor(
         \stdClass $request,
@@ -30,7 +29,7 @@ class GenericHeadHunterSpec extends ObjectBehavior
 
         // Assert
         $editor->shouldBeAnInstanceOf(Editor::class);
-        $editor->getBriefedRequest()->shouldBe($request);
-        $editor->getBriefedRevisions()->shouldBe($revisions);
+        $editor->retrieveBriefedRequest()->shouldBe($request);
+        $editor->retrieveBriefedRevisions()->shouldBe($revisions);
     }
 }

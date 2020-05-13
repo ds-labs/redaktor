@@ -36,19 +36,19 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Retrieves the request received on the briefing.
+     * @inheritDoc
      */
-    public function getBriefedRequest(): object
+    public function retrieveBriefedRequest(): object
     {
         return $this->brief->request();
     }
 
     /**
-     * Retrieves the list or revisions received on the briefing.
+     * @inheritDoc
      *
      * @return Revision[]
      */
-    public function getBriefedRevisions(): array
+    public function retrieveBriefedRevisions(): array
     {
         return $this->brief->revisions();
     }
