@@ -6,8 +6,8 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\HumanResources\HumanResourcesDepartment;
-use DSLabs\Redaktor\HumanResources\HumanResources;
+use DSLabs\Redaktor\Department\EditorDepartment;
+use DSLabs\Redaktor\Department\EditorProvider;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -34,9 +34,9 @@ final class ChiefEditor implements ChiefEditorInterface
     private $revisionResolver;
 
     /**
-     * @var HumanResources
+     * @var EditorProvider
      */
-    private $humanResources;
+    private $editorProvider;
 
     public function __construct(
         Registry $registry,
@@ -46,25 +46,25 @@ final class ChiefEditor implements ChiefEditorInterface
         $this->registry = $registry;
         $this->versionResolver = $versionResolver;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
-        $this->humanResources = new HumanResourcesDepartment();
+        $this->editorProvider = new EditorDepartment();
     }
 
     /**
-     * Get in touch with Human Resources, who will provide an specialised editor.
+     * Get in touch with an editor provider, who will provide an specialised editor.
      */
-    public function speakTo(HumanResources $humanResources): ChiefEditorInterface
+    public function speakTo(EditorProvider $editorProvider): ChiefEditorInterface
     {
-        $this->humanResources = $humanResources;
+        $this->editorProvider = $editorProvider;
 
         return $this;
     }
 
     /**
-     * Create the brief and request the editor that will carry out the work to Human Resources.
+     * Create the brief and request the editor that will carry out the work.
      */
     public function appointEditor(object $request): EditorInterface
     {
-        return $this->humanResources->provideEditor(
+        return $this->editorProvider->provideEditor(
             $this->createBrief($request)
         );
     }

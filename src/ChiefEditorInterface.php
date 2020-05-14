@@ -3,14 +3,14 @@
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\HumanResources\HumanResources;
+use DSLabs\Redaktor\Department\EditorProvider;
 
 interface ChiefEditorInterface
 {
     /**
-     * Get in touch with Human Resources, who will provide the editor.
+     * Get in touch with an editor provider.
      */
-    public function speakTo(HumanResources $humanResources): self;
+    public function speakTo(EditorProvider $editorProvider): self;
 
     /**
      * Appoint the editor who will carry out the work.

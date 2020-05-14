@@ -1,11 +1,11 @@
 <?php
 
-namespace DSLabs\Redaktor\HumanResources;
+namespace DSLabs\Redaktor\Department;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
 
-interface HumanResources
+interface EditorProvider
 {
     /**
      * Provide the editor that will carry out the work.

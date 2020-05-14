@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DSLabs\Redaktor\HumanResources;
+namespace DSLabs\Redaktor\Department;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
 
-final class HumanResourcesDepartment implements HumanResources
+final class EditorDepartment implements EditorProvider
 {
     /**
      * @inheritDoc
