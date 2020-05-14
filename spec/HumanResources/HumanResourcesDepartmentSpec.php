@@ -12,7 +12,7 @@ use PhpSpec\ObjectBehavior;
  */
 class HumanResourcesDepartmentSpec extends ObjectBehavior
 {
-    function it_hires_a_generic_editor(
+    function it_provides_a_generic_editor(
         \stdClass $request,
         Revision $revision
     ) {
@@ -25,7 +25,7 @@ class HumanResourcesDepartmentSpec extends ObjectBehavior
         );
 
         // Act
-        $editor = $this->hireEditor($brief);
+        $editor = $this->provideEditor($brief);
 
         // Assert
         $editor->shouldBeAnInstanceOf(Editor::class);

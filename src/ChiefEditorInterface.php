@@ -8,7 +8,7 @@ use DSLabs\Redaktor\HumanResources\HumanResources;
 interface ChiefEditorInterface
 {
     /**
-     * Get in touch with Human Resources to hire an editor.
+     * Get in touch with Human Resources, who will provide the editor.
      */
     public function speakTo(HumanResources $humanResources): self;
 

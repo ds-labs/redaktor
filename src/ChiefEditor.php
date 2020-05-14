@@ -50,7 +50,7 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
-     * Get in touch with Human Resources to hire an specialised editor.
+     * Get in touch with Human Resources, who will provide an specialised editor.
      */
     public function speakTo(HumanResources $humanResources): ChiefEditorInterface
     {
@@ -60,11 +60,11 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
-     * Create the brief and hire an editor to carry out the work.
+     * Create the brief and request the editor that will carry out the work to Human Resources.
      */
     public function appointEditor(object $request): EditorInterface
     {
-        return $this->humanResources->hireEditor(
+        return $this->humanResources->provideEditor(
             $this->createBrief($request)
         );
     }

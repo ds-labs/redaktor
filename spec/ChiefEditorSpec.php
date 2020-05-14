@@ -156,7 +156,7 @@ class ChiefEditorSpec extends ObjectBehavior
     ) {
         // Arrange
         $registry->retrieveAll()->willReturn([]);
-        $humanResources->hireEditor(Argument::any())->willReturn($specialisedEditor);
+        $humanResources->provideEditor(Argument::any())->willReturn($specialisedEditor);
 
         // Act
         $this->speakTo($humanResources);

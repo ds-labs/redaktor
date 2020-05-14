@@ -8,7 +8,7 @@ use DSLabs\Redaktor\Editor\EditorInterface;
 interface HumanResources
 {
     /**
-     * Hire the editor that will carry out the work.
+     * Provide the editor that will carry out the work.
      */
-    public function hireEditor(Brief $brief): EditorInterface;
+    public function provideEditor(Brief $brief): EditorInterface;
 }

@@ -13,7 +13,7 @@ final class HumanResourcesDepartment implements HumanResources
     /**
      * @inheritDoc
      */
-    public function hireEditor(Brief $brief): EditorInterface
+    public function provideEditor(Brief $brief): EditorInterface
     {
         return new Editor(
             $brief
