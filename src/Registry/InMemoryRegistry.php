@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Registry;
 
-use Closure;
-use DSLabs\Redaktor\Revision\RequestRevision;
-use DSLabs\Redaktor\Revision\ResponseRevision;
-use DSLabs\Redaktor\Revision\Revision;
-use DSLabs\Redaktor\Revision\RoutingRevision;
-
 /**
  * List of in-memory registered revisions.
  */
@@ -18,7 +12,7 @@ final class InMemoryRegistry implements Registry
     /**
      * @var array
      */
-    private $versionsDefinitions;
+    private $versionsDefinition;
 
     /**
      * Receives a list of revisions indexed by its version. Expected format:
@@ -39,91 +33,70 @@ final class InMemoryRegistry implements Registry
      * ]
      */
     public function __construct(
-        array $versionsDefinitions = []
+        array $versionsDefinition = []
     ) {
-        self::validate($versionsDefinitions);
-
-        $this->versionsDefinitions = $versionsDefinitions;
+        $this->versionsDefinition = self::instantiateRevisionDefinitions($versionsDefinition);
     }
 
     /**
-     * Retrieves a collection of all registered revisions.
+     * Retrieves a collection of all registered revision definitions.
      *
-     * @return array|Closure[]
+     * @return RevisionDefinition[]
      */
     public function retrieveAll(): array
     {
-        return self::flatten($this->versionsDefinitions);
+        return self::flatten($this->versionsDefinition);
     }
 
     /**
-     * Retrieves a collection of the revisions since the given $version.
+     * Retrieves a collection of the revision definitions since the given version.
      *
-     * @return array|Closure[]
+     * @return RevisionDefinition[]
      */
     public function retrieveSince(string $version): array
     {
-        $index = array_search($version, array_keys($this->versionsDefinitions), true);
-        $applicableVersionsDefinitions = array_slice(
-            $this->versionsDefinitions,
+        $index = array_search($version, array_keys($this->versionsDefinition), true);
+        $applicableVersionsDefinition = array_slice(
+            $this->versionsDefinition,
             $index
         );
 
-        return self::flatten($applicableVersionsDefinitions);
+        return self::flatten($applicableVersionsDefinition);
     }
 
-    private static function validate(array $versionDefinitions): void
+    private static function instantiateRevisionDefinitions(array $versionsDefinition): array
     {
-        foreach ($versionDefinitions as $version => $revisionDefinitions) {
-            if (!$revisionDefinitions) {
-                throw new InvalidVersionDefinitionException(
-                    'Empty version definition.' // @todo - Improve message
-                );
-            }
-
-            foreach ($revisionDefinitions as $revisionDefinition) {
-                if (!self::isRevisionDefinition($revisionDefinition)) {
-                    throw new InvalidVersionDefinitionException(
-                        sprintf(
-                            'Expected instance of %s, %s, %s or %s. Got: %s.',
-                            RoutingRevision::class,
-                            RequestRevision::class,
-                            ResponseRevision::class,
-                            Closure::class,
-                            is_object($revisionDefinition)
-                                ? get_class($revisionDefinition)
-                                : $revisionDefinition
-                        )
-                    );
+        $values = array_map(
+            static function ($versionDefinition, $version): array {
+                if (!$versionDefinition) {
+                    throw InvalidVersionDefinitionException::empty($version);
                 }
-            }
-        }
-    }
 
-    private static function isRevisionDefinition($revision): bool
-    {
-        if ($revision instanceof Closure) {
-            return true;
-        }
+                return array_map(
+                    static function ($revisionDefinition): RevisionDefinition {
 
-        if (!class_exists($revision)) {
-            return false;
-        }
+                        return new RevisionDefinition($revisionDefinition);
+                    },
+                    $versionDefinition
+                );
+            },
+            $versionsDefinition,
+            $keys = array_keys($versionsDefinition)
+        );
 
-        $interfaces = class_implements($revision);
-
-        return in_array(RequestRevision::class, $interfaces, true)
-            || in_array(ResponseRevision::class, $interfaces, true)
-            || in_array(RoutingRevision::class, $interfaces, true);
+        return array_combine(
+            $keys,
+            $values
+        );
     }
 
     /**
-     * @param array[] $versionsDefinitions
+     * @param array[] $versionsDefinition
      *
-     * @return Closure[]
+     * @return RevisionDefinition[]
      */
-    private static function flatten(array $versionsDefinitions): array
+    private static function flatten(array $versionsDefinition): array
     {
-        return array_reduce($versionsDefinitions, 'array_merge', []);
+        return array_reduce($versionsDefinition, 'array_merge', []);
     }
 }

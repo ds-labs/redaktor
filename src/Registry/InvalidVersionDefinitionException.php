@@ -8,8 +8,15 @@ use InvalidArgumentException;
 
 class InvalidVersionDefinitionException extends InvalidArgumentException
 {
-    public function __construct(string $message)
+    private function __construct(string $message)
     {
         parent::__construct($message);
+    }
+
+    public static function empty(string $version): self
+    {
+        return new self(
+            "Version definition [$version] cannot be empty."
+        );
     }
 }

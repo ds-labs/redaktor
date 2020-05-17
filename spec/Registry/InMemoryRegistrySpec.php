@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
+use DSLabs\Redaktor\Registry\InvalidRevisionDefinition;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\Registry\RevisionDefinition;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
@@ -66,7 +68,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_disallow_non_class_name_strings()
+    function it_disallows_non_class_name_strings()
     {
         // Arrange
         $this->beConstructedWith([
@@ -76,12 +78,12 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Assert
-        $this->shouldThrow(InvalidVersionDefinitionException::class)
+        $this->shouldThrow(InvalidRevisionDefinition::class)
             // Act
             ->duringInstantiation();
     }
 
-    function it_retrieves_all_revisions_from_versions()
+    function it_retrieves_all_revision_definitions()
     {
         // Arrange
         $this->beConstructedWith([
@@ -95,18 +97,19 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Act
-        $revisions = $this->retrieveAll();
+        $revisionsDefinitions = $this->retrieveAll();
 
         // Assert
-        $revisions->shouldHaveCount(3);
-        $revisions->shouldBe([
+        $revisionsDefinitions->shouldBeArray();
+        $revisionsDefinitions->shouldHaveCount(3);
+        $revisionsDefinitions->shouldMatchRevisions([
             $revisionA,
             $revisionB,
             $revisionC,
         ]);
     }
 
-    function it_retrieves_revisions_since_a_given_version()
+    function it_retrieves_revision_definitions_since_a_given_version()
     {
         // Arrange
         $this->beConstructedWith([
@@ -128,7 +131,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Assert
         $revisions->shouldBeArray();
         $revisions->shouldHaveCount(3);
-        $revisions->shouldBe([
+        $revisions->shouldMatchRevisions([
             $revisionB,
             $revisionC,
             $revisionD,
@@ -146,5 +149,22 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->shouldThrow(InvalidVersionDefinitionException::class)
             // Act
             ->duringInstantiation();
+    }
+
+    public function getMatchers(): array
+    {
+        return [
+            'matchRevisions' => static function ($versionDefinition, array $expectedRevisions) {
+
+                $actualRevisions = array_map(
+                    static function ($revisionDefinition) {
+                        return call_user_func($revisionDefinition->getFactory());
+                    },
+                    $versionDefinition
+                );
+
+                return $actualRevisions === $expectedRevisions;
+            }
+        ];
     }
 }
