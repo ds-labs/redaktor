@@ -18,11 +18,6 @@ use spec\DSLabs\Redaktor\Double\Revision\DummyRoutingRevision;
  */
 class InMemoryRegistrySpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(InMemoryRegistry::class);
-    }
-
     function it_retrieves_an_empty_list_of_revision_definitions_if_the_registry_is_empty()
     {
         // Arrange

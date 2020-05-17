@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor;
 
 use DSLabs\Redaktor\ChiefEditor;
-use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Department\EditorProvider;
@@ -16,9 +15,9 @@ use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
 use PhpSpec\ObjectBehavior;
+use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
-use spec\DSLabs\Redaktor\Double\Revision\DummyRevision;
 
 /**
  * @see ChiefEditor
@@ -29,61 +28,63 @@ class ChiefEditorSpec extends ObjectBehavior
         Registry $registry,
         VersionResolver $versionResolver
     ) {
+        $registry->retrieveAll()->willReturn([]);
         $this->beConstructedWith($registry, $versionResolver);
     }
 
-    function it_is_initializable()
+    function it_appoints_a_generic_editor()
     {
-        $this->shouldHaveType(ChiefEditor::class);
+        // Act
+        $editor = $this->appointEditor($request = new DummyRequest());
+
+        // Assert
+        $editor->shouldBeAnInstanceOf(Editor::class);
+        $editor->retrieveBriefedRequest()->shouldBe($request);
     }
 
     function it_appoints_editor_for_a_request_with_no_defined_version(
         Registry $registry,
-        VersionResolver $versionResolver
+        Revision $revisionA,
+        Revision $revisionB
     ) {
         // Arrange
-        $registry->retrieveAll()->willReturn([]);
+        $registry->retrieveAll()
+            ->willReturn([
+                self::createRevisionDefinition($revisionA),
+                self::createRevisionDefinition($revisionB),
+            ]);
 
         // Act
-        $editor = $this->appointEditor($request = new DummyRequest());
+        $editor = $this->appointEditor(new DummyRequest());
 
         // Assert
-        $versionResolver->resolve($request)->shouldHaveBeenCalled();
-        $registry->retrieveAll()->shouldHaveBeenCalled();
-
-        $editor->shouldBeLike(
-            new Editor(
-                new Brief(
-                    $request,
-                    []
-                )
-            )
-        );
+        $editor->retrieveBriefedRevisions()->shouldBe([
+            $revisionA,
+            $revisionB,
+        ]);
     }
 
     function it_appoints_editor_for_a_request_with_a_defined_version(
         Registry $registry,
-        VersionResolver $versionResolver
+        VersionResolver $versionResolver,
+        Revision $revisionA,
+        Revision $revisionB
     ) {
         // Arrange
         $versionResolver->resolve(Argument::any())->willReturn('foo');
-        $registry->retrieveSince('foo')->willReturn([]);
+        $registry->retrieveSince('foo')->willReturn([
+            self::createRevisionDefinition($revisionA),
+            self::createRevisionDefinition($revisionB),
+        ]);
 
         // Act
-        $editor = $this->appointEditor($request = new DummyRequest());
+        $editor = $this->appointEditor(new DummyRequest());
 
         // Assert
-        $versionResolver->resolve($request)->shouldHaveBeenCalled();
-        $registry->retrieveSince('foo')->shouldHaveBeenCalled();
-
-        $editor->shouldBeLike(
-            new Editor(
-                new Brief(
-                    $request,
-                    []
-                )
-            )
-        );
+        $editor->retrieveBriefedRevisions()->shouldBe([
+            $revisionA,
+            $revisionB,
+        ]);
     }
 
     function it_discards_superseded_revisions(
@@ -104,26 +105,19 @@ class ChiefEditorSpec extends ObjectBehavior
         $supersederRevision->supersedes(Argument::any())->willReturn(true);
 
         $registry->retrieveAll()->willReturn([
-            new RevisionDefinition(DummyRevision::class),
-            new RevisionDefinition(DummyRevision::class),
+            self::createRevisionDefinition($supersederRevision),
+            self::createRevisionDefinition($supersededRevision),
         ]);
 
         $revisionResolver->resolve(Argument::any())->willReturn($supersededRevision, $supersederRevision);
 
         // Act
-        $editor = $this->appointEditor($request = new DummyRequest());
+        $editor = $this->appointEditor(new DummyRequest());
 
         // Assert
-        $editor->shouldBeLike(
-            new Editor(
-                new Brief(
-                    $request,
-                    [
-                        $supersederRevision->getWrappedObject(),
-                    ]
-                )
-            )
-        );
+        $editor->retrieveBriefedRevisions()->shouldBe([
+            $supersederRevision,
+        ]);
     }
 
     function it_delegates_the_revision_instantiation_to_the_revision_resolver(
@@ -136,7 +130,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $this->beConstructedWith($registry, $versionResolver, $revisionResolver);
 
         $registry->retrieveAll()->willReturn([
-            $revisionDefinition = new RevisionDefinition(DummyRevision::class),
+            $revisionDefinition = self::createRevisionDefinition($revision),
         ]);
         $revisionResolver->resolve(Argument::any())->willReturn($revision);
 
@@ -160,8 +154,17 @@ class ChiefEditorSpec extends ObjectBehavior
         // Act
         $this->speakTo($editorDepartment);
         $editor = $this->appointEditor(new DummyRequest());
-        
+
         // Assert
         $editor->shouldBe($specialisedEditor);
+    }
+
+    private static function createRevisionDefinition(Collaborator $revision): RevisionDefinition
+    {
+        return new RevisionDefinition(
+            static function () use ($revision) {
+                return $revision->getWrappedObject();
+            }
+        );
     }
 }
