@@ -58,10 +58,8 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor = $this->appointEditor(new DummyRequest());
 
         // Assert
-        $editor->retrieveBriefedRevisions()->shouldBe([
-            $revisionA,
-            $revisionB,
-        ]);
+        $editor->retrieveBriefedRevisions()
+            ->shouldHaveCount(0);
     }
 
     function it_appoints_editor_for_a_request_with_a_defined_version(
@@ -100,11 +98,13 @@ class ChiefEditorSpec extends ObjectBehavior
             $versionResolver,
             $revisionResolver
         );
+        $versionResolver->resolve(Argument::any())
+            ->willReturn('foo');
 
         $supersederRevision->implement(Supersedes::class);
         $supersederRevision->supersedes(Argument::any())->willReturn(true);
 
-        $registry->retrieveAll()->willReturn([
+        $registry->retrieveSince(Argument::any())->willReturn([
             self::createRevisionDefinition($supersederRevision),
             self::createRevisionDefinition($supersededRevision),
         ]);
@@ -129,7 +129,10 @@ class ChiefEditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith($registry, $versionResolver, $revisionResolver);
 
-        $registry->retrieveAll()->willReturn([
+        $versionResolver->resolve(Argument::any())
+            ->willReturn('foo');
+
+        $registry->retrieveSince(Argument::any())->willReturn([
             $revisionDefinition = self::createRevisionDefinition($revision),
         ]);
         $revisionResolver->resolve(Argument::any())->willReturn($revision);

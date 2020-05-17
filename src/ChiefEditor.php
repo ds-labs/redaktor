@@ -92,7 +92,7 @@ final class ChiefEditor implements ChiefEditorInterface
     private function getRevisionDefinitionsSinceVersion(?string $version): array
     {
         return $version === null
-            ? $this->registry->retrieveAll()
+            ? []
             : $this->registry->retrieveSince($version);
     }
 
