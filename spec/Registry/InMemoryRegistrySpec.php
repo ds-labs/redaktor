@@ -17,13 +17,26 @@ use spec\DSLabs\Redaktor\Double\Revision\DummyRoutingRevision;
  */
 class InMemoryRegistrySpec extends ObjectBehavior
 {
-    function it_retrieves_an_empty_list_of_revision_definitions_if_the_registry_is_empty()
+    function it_retrieves_an_empty_list_when_fetching_all_revisions_if_the_registry_is_empty()
     {
         // Arrange
         $this->beConstructedWith([]);
 
         // Act
         $revisions = $this->retrieveAll();
+
+        // Assert
+        $revisions->shouldBeArray();
+        $revisions->shouldHaveCount(0);
+    }
+
+    function it_retrieves_an_empty_list_when_fetching_the_revisions_since_the_given_version_if_the_registry_is_empty()
+    {
+        // Arrange
+        $this->beConstructedWith([]);
+
+        // Act
+        $revisions = $this->retrieveSince('foo');
 
         // Assert
         $revisions->shouldBeArray();

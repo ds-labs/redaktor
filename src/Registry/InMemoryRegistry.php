@@ -55,6 +55,10 @@ final class InMemoryRegistry implements Registry
      */
     public function retrieveSince(string $version): array
     {
+        if (!$this->versionsDefinition) {
+            return [];
+        }
+
         $index = array_search($version, array_keys($this->versionsDefinition), true);
         $applicableVersionsDefinition = array_slice(
             $this->versionsDefinition,
