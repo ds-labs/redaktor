@@ -7,7 +7,6 @@ namespace spec\DSLabs\Redaktor\Registry;
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use DSLabs\Redaktor\Registry\InvalidRevisionDefinition;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
-use DSLabs\Redaktor\Registry\RevisionDefinition;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;

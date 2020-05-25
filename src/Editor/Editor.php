@@ -129,7 +129,6 @@ final class Editor implements EditorInterface
                 }
 
                 $revisedResponse = $revision->applyToResponse($response);
-
                 if ($revisedResponse === $response) {
                     throw MutationException::inRevision($revision);
                 }

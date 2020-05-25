@@ -42,18 +42,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor->retrieveBriefedRequest()->shouldBe($request);
     }
 
-    function it_appoints_editor_for_a_request_with_no_defined_version(
-        Registry $registry,
-        Revision $revisionA,
-        Revision $revisionB
-    ) {
-        // Arrange
-        $registry->retrieveAll()
-            ->willReturn([
-                self::createRevisionDefinition($revisionA),
-                self::createRevisionDefinition($revisionB),
-            ]);
-
+    function it_appoints_an_editor_for_a_request_with_no_defined_version() {
         // Act
         $editor = $this->appointEditor(new DummyRequest());
 
@@ -62,7 +51,7 @@ class ChiefEditorSpec extends ObjectBehavior
             ->shouldHaveCount(0);
     }
 
-    function it_appoints_editor_for_a_request_with_a_defined_version(
+    function it_appoints_an_editor_for_a_request_with_a_defined_version(
         Registry $registry,
         VersionResolver $versionResolver,
         Revision $revisionA,
