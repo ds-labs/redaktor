@@ -35,16 +35,24 @@ final class RevisionDefinition
             && class_exists($definition)
             && in_array(Revision::class, class_implements($definition), true)
         ) {
-            return self::createFactoryFromClassName($definition);
+            return self::wrapInClosure($definition);
+        }
+
+        if ($definition instanceof Revision) {
+            return self::wrapInClosure($definition);
         }
 
         throw InvalidRevisionDefinition::invalidDefinition($definition);
     }
 
-    private static function createFactoryFromClassName(string $revisionClassName): Closure
+    /**
+     * @param Revision|string $definition
+     * @return Closure
+     */
+    private static function wrapInClosure($definition): Closure
     {
-        return static function () use ($revisionClassName) {
-            return $revisionClassName;
+        return static function () use ($definition) {
+            return $definition;
         };
     }
 }

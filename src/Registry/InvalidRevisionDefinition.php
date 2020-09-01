@@ -17,7 +17,7 @@ final class InvalidRevisionDefinition extends \InvalidArgumentException
     {
         return new self(
             sprintf(
-                'Revision definition must be a Closure or the name of a class implementing %s, got %s.',
+                'Revision definition must be a Closure, or the name of a class or an instance implementing %s. Got %s.',
                 Revision::class,
                 is_object($definition)
                     ? get_class($definition)

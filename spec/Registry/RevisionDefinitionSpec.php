@@ -79,7 +79,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_cannot_be_instantiated_with_a_non_existing_class_name()
+    function it_does_not_support_a_non_existing_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -92,7 +92,20 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_creates_a_factory_from_a_class_name()
+    function it_does_not_support_an_existing_class_name_that_is_not_a_revision_instance()
+    {
+        // Arrange
+        $this->beConstructedWith(
+            \stdClass::class
+        );
+
+        // Assert
+        $this->shouldThrow(InvalidRevisionDefinition::class)
+            // Act
+            ->duringInstantiation();
+    }
+
+    function it_supports_a_revision_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -105,6 +118,22 @@ class RevisionDefinitionSpec extends ObjectBehavior
         // Assert
         $factory()->shouldBe(
             DummyRevision::class
+        );
+    }
+
+    function it_supports_a_revision_instance()
+    {
+        // Arrange
+        $this->beConstructedWith(
+            $revision = new DummyRevision()
+        );
+
+        // Act
+        $factory = $this->getFactory();
+
+        // Assert
+        $factory()->shouldBe(
+            $revision
         );
     }
 
