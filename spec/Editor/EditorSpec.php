@@ -139,25 +139,6 @@ class EditorSpec extends ObjectBehavior
             ->shouldBe($revisedRequestB);
     }
 
-    function it_disallows_unmutated_requests_from_applicable_revisions(
-        RequestRevision $requestRevision
-    ) {
-        // Arrange
-        $requestRevision->isApplicable($request = new DummyRequest())->willReturn(true);
-        $requestRevision->applyToRequest($request)->willReturn($request);
-
-        $brief = self::createBrief(
-            $request,
-            [$requestRevision]
-        );
-        $this->beConstructedWith($brief);
-
-        // Assert
-        $this->shouldThrow(MutationException::class)
-            // Act
-            ->during('reviseRequest');
-    }
-
     function it_retrieves_the_same_response_if_the_brief_contains_no_revisions()
     {
         // Arrange
@@ -227,25 +208,6 @@ class EditorSpec extends ObjectBehavior
 
         // Assert
         $responseRevision->isApplicable(Argument::any())->shouldHaveBeenCalledOnce();
-    }
-
-    function it_disallows_unmutated_responses_from_applicable_revisions(
-        ResponseRevision $responseRevision
-    ) {
-        // Arrange
-        $responseRevision->isApplicable(Argument::any())->willReturn(true);
-        $responseRevision->applyToResponse(Argument::any())->willReturn($response = new DummyResponse());
-
-        $brief = self::createBrief(
-            new DummyRequest(),
-            [$responseRevision]
-        );
-        $this->beConstructedWith($brief);
-
-        // Assert
-        $this->shouldThrow(MutationException::class)
-            // Act
-            ->during('reviseResponse', [$response]);
     }
 
     function it_passes_the_routes_iterable_through_all_routing_revisions(
@@ -383,28 +345,46 @@ class EditorSpec extends ObjectBehavior
             ->during('reviseResponse', [new DummyResponse()]);
     }
 
-    function it_applies_applicable_message_revisions_to_both_request_and_response(
-        MessageRevision $messageRevision
+    function it_applies_applicable_request_revisions_to_the_request(
+        RequestRevision $requestRevision
     ) {
         // Arrange
-        $messageRevision->isApplicable(Argument::any())->willReturn(true);
-        $messageRevision->applyToRequest(Argument::any())->willReturn($revisedRequest = new DummyRequest());
-        $messageRevision->applyToResponse(Argument::any())->willReturn($revisedResponse = new DummyResponse());
+        $requestRevision->isApplicable(Argument::any())->willReturn(true);
+        $requestRevision->applyToRequest(Argument::any())->willReturn($revisedRequest = new DummyRequest());
 
         $this->beConstructedWith(
             self::createBrief(
                 $originalRequest = new DummyRequest(),
-                [$messageRevision]
+                [$requestRevision]
             )
         );
 
         // Act
         $this->reviseRequest();
+
+        // Assert
+        $requestRevision->applyToRequest($originalRequest)->shouldHaveBeenCalled();
+    }
+
+    function it_applies_applicable_response_revisions_to_the_response(
+        ResponseRevision $responseRevision
+    ) {
+        // Arrange
+        $responseRevision->isApplicable(Argument::any())->willReturn(true);
+        $responseRevision->applyToResponse(Argument::any())->willReturn($revisedResponse = new DummyResponse());
+
+        $this->beConstructedWith(
+            self::createBrief(
+                $originalRequest = new DummyRequest(),
+                [$responseRevision]
+            )
+        );
+
+        // Act
         $this->reviseResponse($originalResponse = new DummyResponse());
 
         // Assert
-        $messageRevision->applyToRequest($originalRequest)->shouldHaveBeenCalled();
-        $messageRevision->applyToResponse($originalResponse)->shouldHaveBeenCalled();
+        $responseRevision->applyToResponse($originalResponse)->shouldHaveBeenCalled();
     }
 
     /**

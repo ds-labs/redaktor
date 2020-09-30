@@ -95,12 +95,7 @@ final class Editor implements EditorInterface
                     return $request;
                 }
 
-                $revisedRequest = $revision->applyToRequest($request);
-                if ($revisedRequest === $request) {
-                    throw MutationException::inRevision($revision);
-                }
-
-                return $revisedRequest;
+                return $revision->applyToRequest($request);
             },
             $this->brief->request()
         );
@@ -128,12 +123,7 @@ final class Editor implements EditorInterface
                     return $response;
                 }
 
-                $revisedResponse = $revision->applyToResponse($response);
-                if ($revisedResponse === $response) {
-                    throw MutationException::inRevision($revision);
-                }
-
-                return $revisedResponse;
+                return $revision->applyToResponse($response);
             },
             $response
         );
