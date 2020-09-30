@@ -25,9 +25,9 @@ final class Editor implements EditorInterface
     private $requestIsRevised = false;
 
     /**
-     * @var RequestRevision[]|ResponseRevision[]
+     * @var ResponseRevision[]
      */
-    private $applicableRevisions = [];
+    private $applicableResponseRevisions = [];
 
     public function __construct(
         Brief $brief
@@ -54,8 +54,8 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Loops through the revisions passing in the list of routes to
-     * routing revisions, giving them the chance to amend them.
+     * Loops through the routing revisions, passing them the list of routes to
+     * give each revision a chance to amend the routes.
      */
     public function reviseRouting(iterable $routes): iterable
     {
@@ -69,7 +69,8 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Revise the Request given in the Brief.
+     * Loops through the request revisions, giving them a chance to amend the
+     * briefed request.
      */
     public function reviseRequest(): object
     {
@@ -80,18 +81,15 @@ final class Editor implements EditorInterface
 
         $upToDateRequest = array_reduce(
             $revisions,
-            function(
-                object $request,
-                $revision
-            ) {
+            function(object $request, object $revision): object {
                 /** @var RequestRevision|ResponseRevision $revision */
                 if (!$revision->isApplicable($request)) {
                     return $request;
                 }
 
-                $this->applicableRevisions[] = $revision;
+                if ($revision instanceof ResponseRevision) {
+                    $this->applicableResponseRevisions[] = $revision;
 
-                if (!$revision instanceof RequestRevision) {
                     return $request;
                 }
 
@@ -106,8 +104,8 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Revise the given Response based on the applicable revisions for
-     * the Request specified in the Brief.
+     * Loops through the applicable response revisions, giving them a chance to
+     * amend the specified response.
      */
     public function reviseResponse(object $response): object
     {
@@ -116,13 +114,8 @@ final class Editor implements EditorInterface
         }
 
         return array_reduce(
-            array_reverse($this->applicableRevisions),
+            array_reverse($this->applicableResponseRevisions),
             static function($response, $revision): object {
-
-                if (!$revision instanceof ResponseRevision) {
-                    return $response;
-                }
-
                 return $revision->applyToResponse($response);
             },
             $response
@@ -130,7 +123,7 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Set an internal property indicating that the Request has already been
+     * Set an internal flag indicating that the Request has already been
      * revised, and therefore the applicable revisions are known by the Editor.
      */
     private function markRequestAsRevised(): void
