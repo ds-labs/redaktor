@@ -60,12 +60,12 @@ class EditorSpec extends ObjectBehavior
         $revisions->shouldBe($briefedRevisions);
     }
 
-    function it_retrieves_the_same_request_if_the_brief_contains_no_revisions()
+    function it_retrieves_the_original_request_if_the_brief_contains_no_revisions()
     {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $request = new DummyRequest(),
+                $originalRequest = new DummyRequest(),
                 []
             )
         );
@@ -73,22 +73,22 @@ class EditorSpec extends ObjectBehavior
         // Act
         $this->reviseRequest()
             // Assert
-            ->shouldBe($request);
+            ->shouldBe($originalRequest);
     }
 
-    function it_retrieves_the_same_request_if_the_brief_contains_no_applicable_revisions(
+    function it_retrieves_the_original_request_if_the_brief_contains_no_applicable_revisions(
         RequestRevision $requestRevision
     ) {
         // Arrange
-        $requestRevision->isApplicable($request = new DummyRequest())->willReturn(false);
+        $requestRevision->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($request, [$requestRevision])
+            self::createBrief($originalRequest, [$requestRevision])
         );
 
         // Act
         $this->reviseRequest()
             // Assert
-            ->shouldBe($request);
+            ->shouldBe($originalRequest);
     }
 
     function it_revises_a_request_based_on_applicable_revisions(
@@ -96,14 +96,14 @@ class EditorSpec extends ObjectBehavior
         RequestRevision $requestRevisionB
     ) {
         // Arrange
-        $request = new DummyRequest();
+        $originalRequest = new DummyRequest();
         $revisedRequest = new DummyRequest();
-        $requestRevisionA->isApplicable($request)->willReturn(false);
+        $requestRevisionA->isApplicable($originalRequest)->willReturn(false);
 
-        $requestRevisionB->isApplicable($request)->willReturn(true);
-        $requestRevisionB->applyToRequest($request)->willReturn($revisedRequest);
+        $requestRevisionB->isApplicable($originalRequest)->willReturn(true);
+        $requestRevisionB->applyToRequest($originalRequest)->willReturn($revisedRequest);
 
-        $brief = self::createBrief($request, [$requestRevisionA, $requestRevisionB]);
+        $brief = self::createBrief($originalRequest, [$requestRevisionA, $requestRevisionB]);
         $this->beConstructedWith($brief);
 
         // Act
@@ -112,7 +112,7 @@ class EditorSpec extends ObjectBehavior
             ->shouldBe($revisedRequest);
 
         $requestRevisionA->applyToRequest(Argument::any())->shouldNotHaveBeenCalled();
-        $requestRevisionB->applyToRequest($request)->shouldHaveBeenCalledOnce();
+        $requestRevisionB->applyToRequest($originalRequest)->shouldHaveBeenCalledOnce();
     }
 
     function it_uses_the_revised_request_to_check_if_the_next_revision_is_applicable_when_revising_the_request(
@@ -120,17 +120,17 @@ class EditorSpec extends ObjectBehavior
         RequestRevision $requestRevisionB
     ) {
         // Arrange
-        $request = new DummyRequest();
+        $originalRequest = new DummyRequest();
         $revisedRequestA = new DummyRequest();
         $revisedRequestB = new DummyRequest();
-        $requestRevisionA->isApplicable($request)->willReturn(true);
-        $requestRevisionA->applyToRequest($request)->willReturn($revisedRequestA);
+        $requestRevisionA->isApplicable($originalRequest)->willReturn(true);
+        $requestRevisionA->applyToRequest($originalRequest)->willReturn($revisedRequestA);
 
         $requestRevisionB->isApplicable($revisedRequestA)->willReturn(true);
         $requestRevisionB->applyToRequest($revisedRequestA)->willReturn($revisedRequestB);
 
         $this->beConstructedWith(
-            self::createBrief($request, [$requestRevisionA, $requestRevisionB])
+            self::createBrief($originalRequest, [$requestRevisionA, $requestRevisionB])
         );
 
         // Act
@@ -139,7 +139,7 @@ class EditorSpec extends ObjectBehavior
             ->shouldBe($revisedRequestB);
     }
 
-    function it_retrieves_the_same_response_if_the_brief_contains_no_revisions()
+    function it_retrieves_the_original_response_if_the_brief_contains_no_revisions()
     {
         // Arrange
         $this->beConstructedWith(
@@ -150,24 +150,24 @@ class EditorSpec extends ObjectBehavior
         );
 
         // Act
-        $this->reviseResponse($response = new DummyResponse())
+        $this->reviseResponse($originalResponse = new DummyResponse())
             // Assert
-            ->shouldBe($response);
+            ->shouldBe($originalResponse);
     }
 
-    function it_retrieves_the_same_response_if_the_brief_contains_no_applicable_revisions(
+    function it_retrieves_the_original_response_if_the_brief_contains_no_applicable_revisions(
         ResponseRevision $responseRevision
     ) {
         // Arrange
-        $responseRevision->isApplicable($request = new DummyRequest())->willReturn(false);
+        $responseRevision->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($request, [$responseRevision])
+            self::createBrief($originalRequest, [$responseRevision])
         );
 
         // Act
-        $this->reviseResponse($response = new DummyResponse())
+        $this->reviseResponse($originalResponse = new DummyResponse())
             // Assert
-            ->shouldBe($response);
+            ->shouldBe($originalResponse);
     }
 
     function it_revises_a_response_based_on_applicable_revisions(
@@ -184,12 +184,12 @@ class EditorSpec extends ObjectBehavior
         $this->beConstructedWith($brief);
 
         // Act
-        $this->reviseResponse(new DummyResponse())
+        $this->reviseResponse($originalResponse = new DummyResponse())
             // Assert
             ->shouldBe($revisedResponse);
     }
 
-    function it_does_not_double_revise_the_request_if_already_done_so(
+    function it_does_not_double_revise_the_request_if_it_has_already_done_it(
         ResponseRevision $responseRevision
     ) {
         // Arrange
@@ -210,7 +210,7 @@ class EditorSpec extends ObjectBehavior
         $responseRevision->isApplicable(Argument::any())->shouldHaveBeenCalledOnce();
     }
 
-    function it_passes_the_routes_iterable_through_all_routing_revisions(
+    function it_passes_the_routes_through_all_routing_revisions(
         RoutingRevision $routingRevisionA,
         RoutingRevision $routingRevisionB
     ) {

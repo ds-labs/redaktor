@@ -21,7 +21,7 @@ interface EditorInterface
     public function reviseRouting(iterable $routes): iterable;
 
     /**
-     * Passes the request hold through the applicable revisions and returns
+     * Passes the briefed request through the applicable revisions and returns
      * the revised request.
      */
     public function reviseRequest(): object;

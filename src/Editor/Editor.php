@@ -54,8 +54,7 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Loops through the routing revisions, passing them the list of routes to
-     * give each revision a chance to amend the routes.
+     * @inheritDoc
      */
     public function reviseRouting(iterable $routes): iterable
     {
@@ -69,8 +68,7 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Loops through the request revisions, giving them a chance to amend the
-     * briefed request.
+     * @inheritDoc
      */
     public function reviseRequest(): object
     {
@@ -104,8 +102,7 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Loops through the applicable response revisions, giving them a chance to
-     * amend the specified response.
+     * @inheritDoc
      */
     public function reviseResponse(object $response): object
     {
