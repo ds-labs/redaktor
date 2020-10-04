@@ -25,9 +25,9 @@ final class Editor implements EditorInterface
     private $requestIsRevised = false;
 
     /**
-     * @var ResponseRevision[]
+     * @var array
      */
-    private $applicableResponseRevisions = [];
+    private $notes = [];
 
     public function __construct(
         Brief $brief
@@ -72,26 +72,33 @@ final class Editor implements EditorInterface
      */
     public function reviseRequest(): object
     {
-        $revisions = array_filter($this->brief->revisions(), static function($revision): bool {
+        $revisions = array_filter($this->brief->revisions(), static function ($revision): bool {
             return $revision instanceof RequestRevision
                 || $revision instanceof ResponseRevision;
         });
 
         $upToDateRequest = array_reduce(
             $revisions,
-            function(object $request, object $revision): object {
+            function (object $request, object $revision): object {
                 /** @var RequestRevision|ResponseRevision $revision */
                 if (!$revision->isApplicable($request)) {
                     return $request;
                 }
 
-                if ($revision instanceof ResponseRevision) {
-                    $this->applicableResponseRevisions[] = $revision;
+                $revisedRequest = $revision instanceof RequestRevision
+                    ? $revision->applyToRequest($request)
+                    : $request;
 
-                    return $request;
+                // A `$revision` could be and instance of both `RequestRevision`
+                // and `ResponseRevision` at the same time.
+                if ($revision instanceof ResponseRevision) {
+                    $this->notes[] = [
+                        'revision' => $revision,
+                        'request' => $revisedRequest,
+                    ];
                 }
 
-                return $revision->applyToRequest($request);
+                return $revisedRequest;
             },
             $this->brief->request()
         );
@@ -111,9 +118,12 @@ final class Editor implements EditorInterface
         }
 
         return array_reduce(
-            array_reverse($this->applicableResponseRevisions),
-            static function($response, $revision): object {
-                return $revision->applyToResponse($response);
+            array_reverse($this->notes),
+            static function (object $response, array $note): object {
+                /** @var ResponseRevision $revision */
+                $revision = $note['revision'];
+
+                return $revision->applyToResponse($response, $note['request']);
             },
             $response
         );

@@ -175,10 +175,10 @@ class EditorSpec extends ObjectBehavior
         ResponseRevision $responseRevisionB
     ) {
         // Arrange
-        $responseRevisionA->isApplicable(Argument::any())->willReturn(false);
+        $responseRevisionA->isApplicable(Argument::cetera())->willReturn(false);
 
         $responseRevisionB->isApplicable(Argument::any())->willReturn(true);
-        $responseRevisionB->applyToResponse(Argument::any())->willReturn($revisedResponse = new DummyResponse());
+        $responseRevisionB->applyToResponse(Argument::cetera())->willReturn($revisedResponse = new DummyResponse());
 
         $brief = self::createBrief(new DummyRequest(), [$responseRevisionA, $responseRevisionB]);
         $this->beConstructedWith($brief);
@@ -322,7 +322,7 @@ class EditorSpec extends ObjectBehavior
         $this->reviseRequest();
 
         // Assert
-        $responseRevision->applyToResponse(Argument::any())->shouldNotHaveBeenCalled();
+        $responseRevision->applyToResponse(Argument::cetera())->shouldNotHaveBeenCalled();
     }
 
     function it_ignores_applicable_request_revisions_while_revising_the_response(
@@ -371,7 +371,7 @@ class EditorSpec extends ObjectBehavior
     ) {
         // Arrange
         $responseRevision->isApplicable(Argument::any())->willReturn(true);
-        $responseRevision->applyToResponse(Argument::any())->willReturn($revisedResponse = new DummyResponse());
+        $responseRevision->applyToResponse(Argument::cetera())->willReturn($revisedResponse = new DummyResponse());
 
         $this->beConstructedWith(
             self::createBrief(
@@ -384,7 +384,45 @@ class EditorSpec extends ObjectBehavior
         $this->reviseResponse($originalResponse = new DummyResponse());
 
         // Assert
-        $responseRevision->applyToResponse($originalResponse)->shouldHaveBeenCalled();
+        $responseRevision->applyToResponse($originalResponse, $originalRequest)->shouldHaveBeenCalled();
+    }
+
+    /**
+     * Each `ResponseRevision` will receive an instance of the response (revised up to this point) and the request
+     * corresponding to the revision.
+     */
+    function it_passes_the_corresponding_revised_request_in_when_revising_the_response(
+        ResponseRevision $responseRevisionA,
+        RequestRevision $requestRevision,
+        ResponseRevision $responseRevisionB
+    ) {
+        // Arrange
+        $responseRevisionA->isApplicable(Argument::any())->willReturn(true);
+        $responseRevisionA->applyToResponse(Argument::cetera())->willReturn(new DummyResponse());
+
+        $requestRevision->isApplicable(Argument::any())->willReturn(true);
+        $requestRevision->applyToRequest(Argument::any())->willReturn($revisedRequest = new DummyRequest());
+
+        $responseRevisionB->isApplicable(Argument::any())->willReturn(true);
+        $responseRevisionB->applyToResponse(Argument::cetera())->willReturn(new DummyResponse());
+
+        $this->beConstructedWith(
+            self::createBrief(
+                $originalRequest = new DummyRequest(),
+                [
+                    $responseRevisionA,
+                    $requestRevision,
+                    $responseRevisionB,
+                ]
+            )
+        );
+
+        // Act
+        $this->reviseResponse(new DummyResponse());
+
+        // Assert
+        $responseRevisionA->applyToResponse(Argument::any(), $originalRequest)->shouldHaveBeenCalled();
+        $responseRevisionB->applyToResponse(Argument::any(), $revisedRequest)->shouldHaveBeenCalled();
     }
 
     /**
