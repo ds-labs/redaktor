@@ -161,11 +161,11 @@ class InMemoryRegistrySpec extends ObjectBehavior
     public function getMatchers(): array
     {
         return [
-            'matchRevisions' => static function ($versionDefinition, array $expectedRevisions) {
+            'matchRevisions' => static function ($versionDefinition, array $expectedRevisions): bool {
 
                 $actualRevisions = array_map(
                     static function ($revisionDefinition) {
-                        return call_user_func($revisionDefinition->getFactory());
+                        return $revisionDefinition();
                     },
                     $versionDefinition
                 );

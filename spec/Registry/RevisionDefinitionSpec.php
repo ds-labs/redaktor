@@ -14,7 +14,7 @@ use spec\DSLabs\Redaktor\Double\Revision\DummyRevision;
  */
 class RevisionDefinitionSpec extends ObjectBehavior
 {
-    function it_cannot_be_instantiated_with_the_name_of_a_class_that_does_not_implement_the_revision_interface()
+    function it_does_not_support_an_non_revision_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -27,7 +27,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_accepts_a_class_name()
+    function it_supports_a_revision_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -40,7 +40,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_accepts_a_closure()
+    function it_supports_a_closure()
     {
         // Arrange
         $this->beConstructedWith(
@@ -53,7 +53,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_cannot_be_instantiated_with_a_null()
+    function it_does_not_support_a_null()
     {
         // Arrange
         $this->beConstructedWith(
@@ -66,7 +66,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_cannot_be_instantiated_with_an_integer()
+    function it_does_not_support_an_integer()
     {
         // Arrange
         $this->beConstructedWith(
@@ -105,7 +105,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_supports_a_revision_class_name()
+    function it_resolves_a_revision_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -113,15 +113,14 @@ class RevisionDefinitionSpec extends ObjectBehavior
         );
 
         // Act
-        $factory = $this->getFactory();
-
-        // Assert
-        $factory()->shouldBe(
-            DummyRevision::class
-        );
+        $this()
+            // Assert
+            ->shouldBe(
+                DummyRevision::class
+            );
     }
 
-    function it_supports_a_revision_instance()
+    function it_resolves_a_revision_instance()
     {
         // Arrange
         $this->beConstructedWith(
@@ -129,40 +128,56 @@ class RevisionDefinitionSpec extends ObjectBehavior
         );
 
         // Act
-        $factory = $this->getFactory();
-
-        // Assert
-        $factory()->shouldBe(
-            $revision
-        );
+        $this()
+            // Assert
+            ->shouldBe(
+                $revision
+            );
     }
 
-    function it_uses_the_closure_definition_as_the_factory()
+    function it_resolves_a_closure_providing_a_class_name()
     {
         // Arrange
         $this->beConstructedWith(
-            $definition = static function () {}
+            $definition = static function (): string {
+                return 'foo';
+            }
         );
 
         // Act
-        $factory = $this->getFactory();
-
-        // Assert
-        $factory->shouldBe(
-            $definition
-        );
+        $this()
+            // Assert
+            ->shouldBe('foo');
     }
 
-    function it_creates_the_factory_only_once()
+    function it_resolves_a_closure_providing_a_revision_instance()
+    {
+        // Arrange
+        $revision = new DummyRevision();
+        $this->beConstructedWith(
+            $definition = static function () use ($revision): DummyRevision {
+                return $revision;
+            }
+        );
+
+        // Act
+        $this()
+            // Assert
+            ->shouldBe($revision);
+    }
+
+    function it_caches_the_resolved_a_closure_definition()
     {
         // Arrange
         $this->beConstructedWith(
-            DummyRevision::class
+            static function () {
+                return random_int(0, 999);
+            }
         );
 
         // Act
-        $factoryA = $this->getFactory();
-        $factoryB = $this->getFactory();
+        $factoryA = $this();
+        $factoryB = $this();
 
         // Assert
         $factoryA->shouldBe($factoryB);

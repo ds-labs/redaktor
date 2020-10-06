@@ -14,20 +14,39 @@ final class RevisionDefinition
      */
     private $factory;
 
+    /**
+     * @var Revision|string
+     */
+    private $resolved;
+
+    /**
+     * @param $definition Closure|Revision|string
+     */
     public function __construct($definition)
     {
         $this->factory = self::createFactory($definition);
     }
 
-    public function getFactory(): Closure
+    /**
+     * @return string|Revision
+     */
+    public function __invoke()
     {
-        return $this->factory;
+        if ($this->resolved) {
+            return $this->resolved;
+        }
+
+        return $this->resolved = call_user_func($this->factory);
     }
 
     private static function createFactory($definition): Closure
     {
         if ($definition instanceof Closure) {
             return $definition;
+        }
+
+        if ($definition instanceof Revision) {
+            return self::wrapInClosure($definition);
         }
 
         if (
@@ -38,21 +57,17 @@ final class RevisionDefinition
             return self::wrapInClosure($definition);
         }
 
-        if ($definition instanceof Revision) {
-            return self::wrapInClosure($definition);
-        }
-
         throw InvalidRevisionDefinition::invalidDefinition($definition);
     }
 
     /**
-     * @param Revision|string $definition
+     * @param Revision|string $revision
      * @return Closure
      */
-    private static function wrapInClosure($definition): Closure
+    private static function wrapInClosure($revision): Closure
     {
-        return static function () use ($definition) {
-            return $definition;
+        return static function () use ($revision) {
+            return $revision;
         };
     }
 }

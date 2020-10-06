@@ -13,7 +13,7 @@ final class SimpleRevisionResolver implements RevisionResolver
      */
     public function resolve(RevisionDefinition $revisionDefinition): Revision
     {
-        $revision = call_user_func($revisionDefinition->getFactory());
+        $revision = $revisionDefinition();
 
         if (is_string($revision)) {
             $revision = new $revision();
