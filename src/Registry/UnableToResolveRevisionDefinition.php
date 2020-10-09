@@ -12,7 +12,7 @@ final class UnableToResolveRevisionDefinition extends \RuntimeException
     {
         parent::__construct(
             sprintf(
-                'Revision definition factory must return an instance or the name of a class implementing %s, returned %s.',
+                'Revision definition factory must return an instance or the name of a class implementing %s. Got: %s.',
                 Revision::class,
                 is_object($resolvedValue)
                     ? get_class($resolvedValue)

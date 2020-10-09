@@ -103,7 +103,7 @@ final class ChiefEditor implements ChiefEditorInterface
      */
     private function open(array $revisionDefinitions): array
     {
-        return array_map(function (RevisionDefinition $revisionDefinition) {
+        return array_map(function (RevisionDefinition $revisionDefinition): Revision {
 
             return $this->revisionResolver->resolve($revisionDefinition);
         }, $revisionDefinitions);
