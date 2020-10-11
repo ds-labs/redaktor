@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
-use DSLabs\Redaktor\Registry\InvalidRevisionDefinition;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRoutingRevision;
+use Throwable;
 
 /**
  * @see InMemoryRegistry
@@ -55,7 +55,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Assert
-        $this->shouldNotThrow(\Throwable::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }
@@ -70,12 +70,12 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Assert
-        $this->shouldNotThrow(\Throwable::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }
 
-    function it_disallows_non_class_name_strings()
+    function it_supports_string_revision_definition_identifiers()
     {
         // Arrange
         $this->beConstructedWith([
@@ -85,7 +85,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Assert
-        $this->shouldThrow(InvalidRevisionDefinition::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }

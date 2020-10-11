@@ -11,6 +11,7 @@ use DSLabs\Redaktor\Department\EditorProvider;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
+use DSLabs\Redaktor\Registry\UnableToResolveRevisionDefinition;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\VersionResolver;
@@ -132,6 +133,31 @@ class ChiefEditorSpec extends ObjectBehavior
         // Assert
         $revisionResolver->resolve($revisionDefinition)
             ->shouldHaveBeenCalled();
+    }
+
+    function it_bubbles_up_the_exception_thrown_by_the_resolver_if_unable_to_resolve_the_revision_definition(
+        Registry $registry,
+        VersionResolver $versionResolver,
+        RevisionResolver $revisionResolver,
+        Revision $revision
+    ) {
+        // Arrange
+        $this->beConstructedWith($registry, $versionResolver, $revisionResolver);
+
+        $versionResolver->resolve(Argument::any())
+            ->willReturn('foo');
+
+        $registry->retrieveSince(Argument::any())->willReturn([
+            $revisionDefinition = self::createRevisionDefinition($revision),
+        ]);
+
+        $revisionResolver->resolve(Argument::any())
+            ->willThrow(UnableToResolveRevisionDefinition::class);
+
+        // Assert
+        $this->shouldThrow(UnableToResolveRevisionDefinition::class)
+            // Act
+            ->during('appointEditor', [new DummyRequest()]);
     }
 
     function it_can_speak_to_an_editor_provider_to_get_an_specialised_editor(

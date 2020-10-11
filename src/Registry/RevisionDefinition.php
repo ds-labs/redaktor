@@ -51,8 +51,6 @@ final class RevisionDefinition
 
         if (
             is_string($definition)
-            && class_exists($definition)
-            && in_array(Revision::class, class_implements($definition), true)
         ) {
             return self::wrapInClosure($definition);
         }

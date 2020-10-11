@@ -15,7 +15,7 @@ final class SimpleRevisionResolver implements RevisionResolver
     {
         $revision = $revisionDefinition();
 
-        if (is_string($revision)) {
+        if (is_string($revision) && class_exists($revision)) {
             $revision = new $revision();
         }
 

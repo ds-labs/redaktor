@@ -35,7 +35,7 @@ class SimpleRevisionResolverSpec extends ObjectBehavior
     ) {
         // Arrange
         $revisionDefinition = new RevisionDefinition(
-            static function () use ($revision) {
+            static function () use ($revision): Revision {
                 return $revision->getWrappedObject();
             }
         );
@@ -47,12 +47,27 @@ class SimpleRevisionResolverSpec extends ObjectBehavior
         $resolvedRevision->shouldBe($revision);
     }
 
-    function it_fails_if_the_definition_factory_returns_the_name_of_a_class_that_does_not_implement_the_revision_interface()
+    function it_throws_an_exception_if_the_revision_definition_returns_a_class_name_that_does_not_implement_the_revision_interface()
     {
         // Arrange
         $revisionDefinition = new RevisionDefinition(
-            static function () {
+            static function (): string {
                 return \stdClass::class;
+            }
+        );
+
+        // Assert
+        $this->shouldThrow(UnableToResolveRevisionDefinition::class)
+            // Act
+            ->during('resolve', [$revisionDefinition]);
+    }
+
+    function it_throws_an_exception_if_the_revision_definition_returns_a_non_instantiable_string()
+    {
+        // Arrange
+        $revisionDefinition = new RevisionDefinition(
+            static function (): string {
+                return 'foo';
             }
         );
 

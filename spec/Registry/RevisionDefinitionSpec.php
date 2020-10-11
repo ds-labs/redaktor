@@ -8,6 +8,7 @@ use DSLabs\Redaktor\Registry\InvalidRevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRevision;
+use Throwable;
 
 /**
  * @see RevisionDefinition
@@ -18,16 +19,16 @@ class RevisionDefinitionSpec extends ObjectBehavior
     {
         // Arrange
         $this->beConstructedWith(
-            \stdClass::class
+            'foo'
         );
 
         // Assert
-        $this->shouldThrow(InvalidRevisionDefinition::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }
 
-    function it_supports_a_revision_class_name()
+    function it_supports_a_revision_class_name_class_name()
     {
         // Arrange
         $this->beConstructedWith(
@@ -35,7 +36,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
         );
 
         // Assert
-        $this->shouldNotThrow(\Throwable::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }
@@ -48,7 +49,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
         );
 
         // Assert
-        $this->shouldNotThrow(\Throwable::class)
+        $this->shouldNotThrow(Throwable::class)
             // Act
             ->duringInstantiation();
     }
@@ -71,32 +72,6 @@ class RevisionDefinitionSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             4
-        );
-
-        // Assert
-        $this->shouldThrow(InvalidRevisionDefinition::class)
-            // Act
-            ->duringInstantiation();
-    }
-
-    function it_does_not_support_a_non_existing_class_name()
-    {
-        // Arrange
-        $this->beConstructedWith(
-            'foo'
-        );
-
-        // Assert
-        $this->shouldThrow(InvalidRevisionDefinition::class)
-            // Act
-            ->duringInstantiation();
-    }
-
-    function it_does_not_support_an_existing_class_name_that_is_not_a_revision_instance()
-    {
-        // Arrange
-        $this->beConstructedWith(
-            \stdClass::class
         );
 
         // Assert
@@ -135,7 +110,7 @@ class RevisionDefinitionSpec extends ObjectBehavior
             );
     }
 
-    function it_resolves_a_closure_providing_a_class_name()
+    function it_resolves_a_closure_providing_a_revision_identifier()
     {
         // Arrange
         $this->beConstructedWith(
@@ -166,11 +141,11 @@ class RevisionDefinitionSpec extends ObjectBehavior
             ->shouldBe($revision);
     }
 
-    function it_caches_the_resolved_a_closure_definition()
+    function it_caches_the_resolved_closure_definition()
     {
         // Arrange
         $this->beConstructedWith(
-            static function () {
+            static function (): int {
                 return random_int(0, 999);
             }
         );
