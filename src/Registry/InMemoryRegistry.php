@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Registry;
 
+use DSLabs\Redaktor\Version\Version;
+
 /**
  * List of in-memory registered revisions.
  */
@@ -53,13 +55,17 @@ final class InMemoryRegistry implements Registry
      *
      * @return RevisionDefinition[]
      */
-    public function retrieveSince(string $version): array
+    public function retrieveSince(Version $version): array
     {
         if (!$this->versionsDefinition) {
             return [];
         }
 
-        $index = array_search($version, array_keys($this->versionsDefinition), true);
+        $index = array_search((string)$version, array_keys($this->versionsDefinition), true);
+        if ($index === false) {
+            return [];
+        }
+
         $applicableVersionsDefinition = array_slice(
             $this->versionsDefinition,
             $index

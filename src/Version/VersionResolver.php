@@ -4,5 +4,5 @@ namespace DSLabs\Redaktor\Version;
 
 interface VersionResolver
 {
-    public function resolve(object $request): ?string;
+    public function resolve(object $request): Version;
 }

@@ -8,6 +8,7 @@ use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
+use DSLabs\Redaktor\Version\Version;
 
 /**
  * Given a Brief is able to revise the application routes, request and/or response.
@@ -38,9 +39,9 @@ final class Editor implements EditorInterface
     /**
      * @inheritDoc
      */
-    public function retrieveBriefedRequest(): object
+    public function briefedVersion(): Version
     {
-        return $this->brief->request();
+        return $this->brief->version();
     }
 
     /**
@@ -70,7 +71,7 @@ final class Editor implements EditorInterface
     /**
      * @inheritDoc
      */
-    public function reviseRequest(): object
+    public function reviseRequest(object $request): object
     {
         $revisions = array_filter($this->brief->revisions(), static function ($revision): bool {
             return $revision instanceof RequestRevision
@@ -100,7 +101,7 @@ final class Editor implements EditorInterface
 
                 return $revisedRequest;
             },
-            $this->brief->request()
+            $request
         );
 
         $this->markRequestAsRevised();
@@ -114,7 +115,10 @@ final class Editor implements EditorInterface
     public function reviseResponse(object $response): object
     {
         if (!$this->requestIsRevised) {
-            $this->reviseRequest();
+            throw new RequestUnaware(
+                'reviseRequest()',
+                'reviseResponse()'
+            );
         }
 
         return array_reduce(

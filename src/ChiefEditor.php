@@ -14,7 +14,7 @@ use DSLabs\Redaktor\Registry\RevisionResolver;
 use DSLabs\Redaktor\Registry\SimpleRevisionResolver;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\Supersedes;
-use DSLabs\Redaktor\Version\VersionResolver;
+use DSLabs\Redaktor\Version\Version;
 
 final class ChiefEditor implements ChiefEditorInterface
 {
@@ -22,11 +22,6 @@ final class ChiefEditor implements ChiefEditorInterface
      * @var Registry
      */
     private $registry;
-
-    /**
-     * @var VersionResolver
-     */
-    private $versionResolver;
 
     /**
      * @var RevisionResolver|null
@@ -40,11 +35,9 @@ final class ChiefEditor implements ChiefEditorInterface
 
     public function __construct(
         Registry $registry,
-        VersionResolver $versionResolver,
         RevisionResolver $revisionResolver = null
     ) {
         $this->registry = $registry;
-        $this->versionResolver = $versionResolver;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
         $this->editorProvider = new EditorDepartment();
     }
@@ -60,40 +53,30 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
-     * Create the brief and request the editor that will carry out the work.
+     * Appoint an editor to carry out the work for the given $version.
      */
-    public function appointEditor(object $request): EditorInterface
+    public function appointEditor(Version $version): EditorInterface
     {
         return $this->editorProvider->provideEditor(
-            $this->createBrief($request)
+            $this->createBrief($version)
         );
     }
 
-    private function createBrief(object $request): Brief
+    /**
+     * Create the brief for the given $version.
+     */
+    private function createBrief(Version $version): Brief
     {
-        $version = $this->askForCurrentVersion($request);
-        $revisionsDefinitions = $this->getRevisionDefinitionsSinceVersion($version);
+        $revisionsDefinitions = $this->registry->retrieveSince($version);
 
         $revisions = self::filterRevisions(
             $this->open($revisionsDefinitions)
         );
 
         return new Brief(
-            $request,
+            $version,
             $revisions
         );
-    }
-
-    private function askForCurrentVersion(object $request): ?string
-    {
-        return $this->versionResolver->resolve($request);
-    }
-
-    private function getRevisionDefinitionsSinceVersion(?string $version): array
-    {
-        return $version === null
-            ? []
-            : $this->registry->retrieveSince($version);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace spec\DSLabs\Redaktor\Department;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
 use DSLabs\Redaktor\Revision\Revision;
+use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 
 /**
@@ -13,12 +14,11 @@ use PhpSpec\ObjectBehavior;
 class EditorDepartmentSpec extends ObjectBehavior
 {
     function it_provides_a_generic_editor(
-        \stdClass $request,
         Revision $revision
     ) {
         // Arrange
         $brief = new Brief(
-            $request->getWrappedObject(),
+            $version = new Version('foo'),
             $revisions = [
                 $revision->getWrappedObject()
             ]
@@ -29,7 +29,7 @@ class EditorDepartmentSpec extends ObjectBehavior
 
         // Assert
         $editor->shouldBeAnInstanceOf(Editor::class);
-        $editor->retrieveBriefedRequest()->shouldBe($request);
+        $editor->briefedVersion()->shouldBe($version);
         $editor->retrieveBriefedRevisions()->shouldBe($revisions);
     }
 }

@@ -6,12 +6,12 @@ namespace spec\DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\Editor;
-use DSLabs\Redaktor\Editor\MutationException;
-use DSLabs\Redaktor\Revision\MessageRevision;
+use DSLabs\Redaktor\Editor\RequestUnaware;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
+use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
 use Prophecy\Argument;
@@ -23,21 +23,20 @@ use spec\DSLabs\Redaktor\Double\DummyResponse;
  */
 class EditorSpec extends ObjectBehavior
 {
-    function it_retrieves_the_briefed_request()
+    function it_retrieves_the_briefed_version()
     {
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $briefedRequest = new DummyRequest(),
+                $briefedVersion = new Version('foo'),
                 []
             )
         );
 
         // Act
-        $request = $this->retrieveBriefedRequest();
-
-        // Assert
-        $request->shouldBe($briefedRequest);
+        $this->briefedVersion()
+            // Assert
+            ->shouldBe($briefedVersion);
     }
 
     function it_retrieves_the_briefed_revisions(
@@ -46,7 +45,7 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 $briefedRevisions = [
                     $revision
                 ]
@@ -54,10 +53,9 @@ class EditorSpec extends ObjectBehavior
         );
 
         // Act
-        $revisions = $this->retrieveBriefedRevisions();
-
-        // Assert
-        $revisions->shouldBe($briefedRevisions);
+        $this->retrieveBriefedRevisions()
+            // Assert
+            ->shouldBe($briefedRevisions);
     }
 
     function it_retrieves_the_original_request_if_the_brief_contains_no_revisions()
@@ -65,13 +63,13 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                $originalRequest = new DummyRequest(),
+                new Version('foo'),
                 []
             )
         );
 
         // Act
-        $this->reviseRequest()
+        $this->reviseRequest($originalRequest = new DummyRequest())
             // Assert
             ->shouldBe($originalRequest);
     }
@@ -82,11 +80,14 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $requestRevision->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($originalRequest, [$requestRevision])
+            self::createBrief(
+                new Version('foo'),
+                [$requestRevision]
+            )
         );
 
         // Act
-        $this->reviseRequest()
+        $this->reviseRequest($originalRequest)
             // Assert
             ->shouldBe($originalRequest);
     }
@@ -96,20 +97,22 @@ class EditorSpec extends ObjectBehavior
         RequestRevision $requestRevisionB
     ) {
         // Arrange
-        $originalRequest = new DummyRequest();
-        $revisedRequest = new DummyRequest();
-        $requestRevisionA->isApplicable($originalRequest)->willReturn(false);
+        $requestRevisionA->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
 
         $requestRevisionB->isApplicable($originalRequest)->willReturn(true);
-        $requestRevisionB->applyToRequest($originalRequest)->willReturn($revisedRequest);
+        $requestRevisionB->applyToRequest($originalRequest)->willReturn($revisedRequestB = new DummyRequest());
 
-        $brief = self::createBrief($originalRequest, [$requestRevisionA, $requestRevisionB]);
+        $brief = self::createBrief(
+            new Version('foo'),
+            [$requestRevisionA, $requestRevisionB]
+        );
         $this->beConstructedWith($brief);
 
         // Act
-        $this->reviseRequest()
-            // Assert
-            ->shouldBe($revisedRequest);
+        $revisedRequest = $this->reviseRequest($originalRequest);
+
+        // Assert
+        $revisedRequest->shouldBe($revisedRequestB);
 
         $requestRevisionA->applyToRequest(Argument::any())->shouldNotHaveBeenCalled();
         $requestRevisionB->applyToRequest($originalRequest)->shouldHaveBeenCalledOnce();
@@ -120,23 +123,43 @@ class EditorSpec extends ObjectBehavior
         RequestRevision $requestRevisionB
     ) {
         // Arrange
-        $originalRequest = new DummyRequest();
-        $revisedRequestA = new DummyRequest();
-        $revisedRequestB = new DummyRequest();
-        $requestRevisionA->isApplicable($originalRequest)->willReturn(true);
-        $requestRevisionA->applyToRequest($originalRequest)->willReturn($revisedRequestA);
+        $requestRevisionA->isApplicable(Argument::any())->willReturn(true);
+        $requestRevisionA->applyToRequest(Argument::any())->willReturn($revisedRequestA = new DummyRequest());
 
-        $requestRevisionB->isApplicable($revisedRequestA)->willReturn(true);
-        $requestRevisionB->applyToRequest($revisedRequestA)->willReturn($revisedRequestB);
+        $requestRevisionB->isApplicable(Argument::any())->willReturn(true);
+        $requestRevisionB->applyToRequest(Argument::any())->willReturn($revisedRequestB = new DummyRequest());
 
         $this->beConstructedWith(
-            self::createBrief($originalRequest, [$requestRevisionA, $requestRevisionB])
+            self::createBrief(
+                new Version('foo'),
+                [
+                    $requestRevisionA,
+                    $requestRevisionB
+                ]
+            )
         );
 
         // Act
-        $this->reviseRequest()
-            // Assert
-            ->shouldBe($revisedRequestB);
+        $revisedRequest = $this->reviseRequest($originalRequest = new DummyRequest());
+
+        // Assert
+        $revisedRequest->shouldBe($revisedRequestB);
+
+        $requestRevisionA->applyToRequest($originalRequest)->shouldHaveBeenCalled();
+        $requestRevisionB->applyToRequest($revisedRequestA)->shouldHaveBeenCalled();
+    }
+    
+    function it_throws_an_exception_when_revising_the_response_without_having_previously_revised_the_request()
+    {
+        // Arrange
+        $this->beConstructedWith(
+            self::createBrief(new Version('foo'), [])
+        );
+
+        // Assert
+        $this->shouldThrow(RequestUnaware::class)
+            // Act
+            ->during('reviseResponse', [new DummyResponse()]);
     }
 
     function it_retrieves_the_original_response_if_the_brief_contains_no_revisions()
@@ -144,10 +167,11 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 []
             )
         );
+        $this->reviseRequest(new DummyRequest());
 
         // Act
         $this->reviseResponse($originalResponse = new DummyResponse())
@@ -161,8 +185,9 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $responseRevision->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
         $this->beConstructedWith(
-            self::createBrief($originalRequest, [$responseRevision])
+            self::createBrief(new Version('foo'), [$responseRevision])
         );
+        $this->reviseRequest($originalRequest);
 
         // Act
         $this->reviseResponse($originalResponse = new DummyResponse())
@@ -180,34 +205,15 @@ class EditorSpec extends ObjectBehavior
         $responseRevisionB->isApplicable(Argument::any())->willReturn(true);
         $responseRevisionB->applyToResponse(Argument::cetera())->willReturn($revisedResponse = new DummyResponse());
 
-        $brief = self::createBrief(new DummyRequest(), [$responseRevisionA, $responseRevisionB]);
+        $brief = self::createBrief(new Version('foo'), [$responseRevisionA, $responseRevisionB]);
         $this->beConstructedWith($brief);
+
+        $this->reviseRequest(new DummyRequest());
 
         // Act
         $this->reviseResponse($originalResponse = new DummyResponse())
             // Assert
             ->shouldBe($revisedResponse);
-    }
-
-    function it_does_not_double_revise_the_request_if_it_has_already_done_it(
-        ResponseRevision $responseRevision
-    ) {
-        // Arrange
-        $responseRevision->isApplicable(Argument::any());
-
-        $this->beConstructedWith(
-            self::createBrief(
-                new DummyRequest(),
-                [$responseRevision]
-            )
-        );
-
-        // Act
-        $this->reviseRequest();
-        $this->reviseResponse(new DummyResponse());
-
-        // Assert
-        $responseRevision->isApplicable(Argument::any())->shouldHaveBeenCalledOnce();
     }
 
     function it_passes_the_routes_through_all_routing_revisions(
@@ -216,7 +222,7 @@ class EditorSpec extends ObjectBehavior
     ) {
         // Arrange
         $brief = self::createBrief(
-            new DummyRequest(),
+            new Version('foo'),
             [$routingRevisionA, $routingRevisionB]
         );
         $this->beConstructedWith($brief);
@@ -239,13 +245,13 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 [$routingRevision]
             )
         );
 
         // Act
-        $this->reviseRequest();
+        $this->reviseRequest(new DummyRequest());
 
         // Assert
         $routingRevision->__invoke(Argument::any())->shouldNotHaveBeenCalled();
@@ -257,10 +263,11 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 [$routingRevision]
             )
         );
+        $this->reviseRequest(new DummyRequest());
 
         // Act
         $this->reviseResponse(new DummyResponse());
@@ -275,7 +282,7 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 [$requestRevision]
             )
         );
@@ -293,7 +300,7 @@ class EditorSpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 [$responseRevision]
             )
         );
@@ -313,13 +320,13 @@ class EditorSpec extends ObjectBehavior
 
         $this->beConstructedWith(
             self::createBrief(
-                new DummyRequest(),
+                new Version('foo'),
                 [$responseRevision]
             )
         );
 
         // Act
-        $this->reviseRequest();
+        $this->reviseRequest(new DummyRequest());
 
         // Assert
         $responseRevision->applyToResponse(Argument::cetera())->shouldNotHaveBeenCalled();
@@ -334,10 +341,11 @@ class EditorSpec extends ObjectBehavior
 
         $this->beConstructedWith(
             self::createBrief(
-                $originalRequest = new DummyRequest(),
+                new Version('foo'),
                 [$requestRevision]
             )
         );
+        $this->reviseRequest(new DummyRequest());
 
         // Act
         $this->shouldNotThrow(\Throwable::class)
@@ -354,13 +362,13 @@ class EditorSpec extends ObjectBehavior
 
         $this->beConstructedWith(
             self::createBrief(
-                $originalRequest = new DummyRequest(),
+                new Version('foo'),
                 [$requestRevision]
             )
         );
 
         // Act
-        $this->reviseRequest();
+        $this->reviseRequest($originalRequest = new DummyRequest());
 
         // Assert
         $requestRevision->applyToRequest($originalRequest)->shouldHaveBeenCalled();
@@ -375,10 +383,11 @@ class EditorSpec extends ObjectBehavior
 
         $this->beConstructedWith(
             self::createBrief(
-                $originalRequest = new DummyRequest(),
+                new Version('foo'),
                 [$responseRevision]
             )
         );
+        $this->reviseRequest($originalRequest = new DummyRequest());
 
         // Act
         $this->reviseResponse($originalResponse = new DummyResponse());
@@ -408,7 +417,7 @@ class EditorSpec extends ObjectBehavior
 
         $this->beConstructedWith(
             self::createBrief(
-                $originalRequest = new DummyRequest(),
+                new Version('foo'),
                 [
                     $responseRevisionA,
                     $requestRevision,
@@ -416,6 +425,7 @@ class EditorSpec extends ObjectBehavior
                 ]
             )
         );
+        $this->reviseRequest($originalRequest = new DummyRequest());
 
         // Act
         $this->reviseResponse(new DummyResponse());
@@ -426,17 +436,17 @@ class EditorSpec extends ObjectBehavior
     }
 
     /**
-     * @param object $request
+     * @param Version $version
      * @param Revision[]|Collaborator[] $revisions
      */
-    private static function createBrief(object $request, array $revisions): Brief
+    private static function createBrief(Version $version, array $revisions): Brief
     {
         $revisions = array_map(static function(Collaborator $revision) {
             return $revision->getWrappedObject();
         }, $revisions);
 
         return new Brief(
-            $request,
+            $version,
             $revisions
         );
     }

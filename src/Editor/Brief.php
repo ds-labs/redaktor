@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\Revision;
+use DSLabs\Redaktor\Version\Version;
 
 final class Brief
 {
     /**
-     * @var object
+     * @var Version
      */
-    private $request;
+    private $version;
 
     /**
      * @var Revision[]
@@ -22,18 +23,18 @@ final class Brief
      * @param Revision[] $revisions
      */
     public function __construct(
-        object $request,
+        Version $version,
         array $revisions
     ) {
         self::validateRevisions($revisions);
 
-        $this->request = $request;
+        $this->version = $version;
         $this->revisions = $revisions;
     }
 
-    public function request(): object
+    public function version(): Version
     {
-        return $this->request;
+        return $this->version;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Department\EditorProvider;
+use DSLabs\Redaktor\Version\Version;
 
 interface ChiefEditorInterface
 {
@@ -15,5 +16,5 @@ interface ChiefEditorInterface
     /**
      * Appoint the editor who will carry out the work.
      */
-    public function appointEditor(object $request): EditorInterface;
+    public function appointEditor(Version $version): EditorInterface;
 }

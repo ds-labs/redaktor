@@ -6,6 +6,7 @@ namespace spec\DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Revision\Revision;
+use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\DummyRequest;
 
@@ -18,7 +19,7 @@ class BriefSpec extends ObjectBehavior
     {
         // Arrange
         $this->beConstructedWith(
-            $request = new DummyRequest(),
+            new Version('foo'),
             [
                 'foo',
             ]
@@ -30,18 +31,18 @@ class BriefSpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
-    function it_retrieves_original_request()
+    function it_retrieves_version()
     {
         // Arrange
         $this->beConstructedWith(
-            $request = new DummyRequest(),
+            $version = new Version('foo'),
             []
         );
 
         // Act
-        $this->request()
+        $this->version()
             // Assert
-            ->shouldBe($request);
+            ->shouldBe($version);
     }
 
     function it_retrieves_list_of_revisions(
@@ -50,7 +51,7 @@ class BriefSpec extends ObjectBehavior
     ) {
         // Arrange
         $this->beConstructedWith(
-            $request = new DummyRequest(),
+            new Version('foo'),
             [
                 $revisionA,
                 $revisionB,

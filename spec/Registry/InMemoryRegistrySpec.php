@@ -6,6 +6,7 @@ namespace spec\DSLabs\Redaktor\Registry;
 
 use DSLabs\Redaktor\Registry\InMemoryRegistry;
 use DSLabs\Redaktor\Registry\InvalidVersionDefinitionException;
+use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 use spec\DSLabs\Redaktor\Double\Revision\DummyRequestRevision;
 use spec\DSLabs\Redaktor\Double\Revision\DummyResponseRevision;
@@ -36,7 +37,24 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->beConstructedWith([]);
 
         // Act
-        $revisions = $this->retrieveSince('foo');
+        $revisions = $this->retrieveSince(new Version('foo'));
+
+        // Assert
+        $revisions->shouldBeArray();
+        $revisions->shouldHaveCount(0);
+    }
+
+    function it_retrieves_an_empty_list_when_fetching_the_revisions_since_an_inexistent_version()
+    {
+        // Arrange
+        $this->beConstructedWith([
+            'foo' => [
+                DummyRoutingRevision::class,
+            ],
+        ]);
+
+        // Act
+        $revisions = $this->retrieveSince(new Version('bar'));
 
         // Assert
         $revisions->shouldBeArray();
@@ -133,7 +151,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
 
         // Act
-        $revisions = $this->retrieveSince('bar');
+        $revisions = $this->retrieveSince(new Version('bar'));
 
         // Assert
         $revisions->shouldBeArray();
