@@ -49,7 +49,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor = $this->appointEditor(new Version('foo'));
 
         // Assert
-        $editor->retrieveBriefedRevisions()
+        $editor->briefedRevisions()
             ->shouldHaveCount(0);
     }
 
@@ -68,7 +68,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor = $this->appointEditor(new Version('foo'));
 
         // Assert
-        $editor->retrieveBriefedRevisions()->shouldBe([
+        $editor->briefedRevisions()->shouldBe([
             $revisionA,
             $revisionB,
         ]);
@@ -101,7 +101,7 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor = $this->appointEditor(new Version('foo'));
 
         // Assert
-        $editor->retrieveBriefedRevisions()->shouldBe([
+        $editor->briefedRevisions()->shouldBe([
             $supersederRevision,
         ]);
     }

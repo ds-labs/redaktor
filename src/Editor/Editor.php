@@ -49,7 +49,7 @@ final class Editor implements EditorInterface
      *
      * @return Revision[]
      */
-    public function retrieveBriefedRevisions(): array
+    public function briefedRevisions(): array
     {
         return $this->brief->revisions();
     }

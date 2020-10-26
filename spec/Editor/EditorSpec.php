@@ -53,7 +53,7 @@ class EditorSpec extends ObjectBehavior
         );
 
         // Act
-        $this->retrieveBriefedRevisions()
+        $this->briefedRevisions()
             // Assert
             ->shouldBe($briefedRevisions);
     }

@@ -14,7 +14,7 @@ interface EditorInterface
     /**
      * Retrieves the list of revisions passed on in the briefing.
      */
-    public function retrieveBriefedRevisions(): array;
+    public function briefedRevisions(): array;
 
     /**
      * Passes the routes through every routing revision and returns the

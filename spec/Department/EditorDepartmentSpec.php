@@ -30,6 +30,6 @@ class EditorDepartmentSpec extends ObjectBehavior
         // Assert
         $editor->shouldBeAnInstanceOf(Editor::class);
         $editor->briefedVersion()->shouldBe($version);
-        $editor->retrieveBriefedRevisions()->shouldBe($revisions);
+        $editor->briefedRevisions()->shouldBe($revisions);
     }
 }
