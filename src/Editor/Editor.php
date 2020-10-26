@@ -6,7 +6,6 @@ namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
-use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Revision\RoutingRevision;
 use DSLabs\Redaktor\Version\Version;
 
@@ -46,8 +45,6 @@ final class Editor implements EditorInterface
 
     /**
      * @inheritDoc
-     *
-     * @return Revision[]
      */
     public function briefedRevisions(): array
     {

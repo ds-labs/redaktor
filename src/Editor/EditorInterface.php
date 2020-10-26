@@ -2,35 +2,35 @@
 
 namespace DSLabs\Redaktor\Editor;
 
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Version\Version;
 
 interface EditorInterface
 {
     /**
-     * Retrieves the version the Editor was briefed on.
+     * Retrieves the version that was briefed on.
      */
     public function briefedVersion(): Version;
 
     /**
-     * Retrieves the list of revisions passed on in the briefing.
+     * Retrieves the list of revisions that was briefed on.
+     *
+     * @return Revision[]
      */
     public function briefedRevisions(): array;
 
     /**
-     * Passes the routes through every routing revision and returns the
-     * revised routes.
+     * Revise the given $routes to the briefed version.
      */
     public function reviseRouting(iterable $routes): iterable;
 
     /**
-     * Passes the request through the applicable revisions and returns
-     * the revised request.
+     * Revise the given $request to the briefed version.
      */
     public function reviseRequest(object $request): object;
 
     /**
-     * Passes the response through the applicable revisions and returns
-     * the revised response.
+     * Revise the given $response to the briefed version.
      */
     public function reviseResponse(object $response): object;
 }
