@@ -12,7 +12,7 @@ use DSLabs\Redaktor\Version\Version;
 /**
  * Given a Brief is able to revise the application routes, request and/or response.
  */
-final class Editor implements EditorInterface
+final class Editor implements RoutingEditorInterface, MessageEditorInterface
 {
     /**
      * @var Brief

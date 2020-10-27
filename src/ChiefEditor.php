@@ -8,6 +8,8 @@ use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Department\EditorDepartment;
 use DSLabs\Redaktor\Department\EditorProvider;
+use DSLabs\Redaktor\Editor\MessageEditorInterface;
+use DSLabs\Redaktor\Editor\RoutingEditorInterface;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -53,7 +55,9 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
-     * Appoint an editor to carry out the work for the given $version.
+     * Appoint an editor for the given $version to carry out the work.
+     *
+     * @return RoutingEditorInterface|MessageEditorInterface
      */
     public function appointEditor(Version $version): EditorInterface
     {

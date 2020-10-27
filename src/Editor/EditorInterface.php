@@ -18,19 +18,4 @@ interface EditorInterface
      * @return Revision[]
      */
     public function briefedRevisions(): array;
-
-    /**
-     * Revise the given $routes to the briefed version.
-     */
-    public function reviseRouting(iterable $routes): iterable;
-
-    /**
-     * Revise the given $request to the briefed version.
-     */
-    public function reviseRequest(object $request): object;
-
-    /**
-     * Revise the given $response to the briefed version.
-     */
-    public function reviseResponse(object $response): object;
 }
