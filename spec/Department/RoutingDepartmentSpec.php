@@ -3,17 +3,17 @@
 namespace spec\DSLabs\Redaktor\Department;
 
 use DSLabs\Redaktor\Editor\Brief;
-use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\RoutingEditor;
 use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 
 /**
- * @see EditorDepartment
+ * @see RoutingDepartment
  */
-class EditorDepartmentSpec extends ObjectBehavior
+class RoutingDepartmentSpec extends ObjectBehavior
 {
-    function it_provides_a_generic_editor(
+    function it_provides_a_routing_editor(
         Revision $revision
     ) {
         // Arrange
@@ -28,7 +28,7 @@ class EditorDepartmentSpec extends ObjectBehavior
         $editor = $this->provideEditor($brief);
 
         // Assert
-        $editor->shouldBeAnInstanceOf(Editor::class);
+        $editor->shouldBeAnInstanceOf(RoutingEditor::class);
         $editor->briefedVersion()->shouldBe($version);
         $editor->briefedRevisions()->shouldBe($revisions);
     }

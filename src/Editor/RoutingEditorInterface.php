@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DSLabs\Redaktor\Editor;
 
 interface RoutingEditorInterface extends EditorInterface

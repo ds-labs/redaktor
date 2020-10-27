@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor;
 
 use DSLabs\Redaktor\ChiefEditor;
-use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\EditorInterface;
+use DSLabs\Redaktor\Editor\MessageEditor;
 use DSLabs\Redaktor\Department\EditorProvider;
-use DSLabs\Redaktor\Editor\MessageEditorInterface;
-use DSLabs\Redaktor\Editor\RoutingEditorInterface;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -32,13 +31,13 @@ class ChiefEditorSpec extends ObjectBehavior
         $this->beConstructedWith($registry);
     }
 
-    function it_appoints_a_generic_editor_by_default()
+    function it_appoints_a_message_editor_by_default()
     {
         // Act
         $editor = $this->appointEditor($version = new Version('foo'));
 
         // Assert
-        $editor->shouldBeAnInstanceOf(Editor::class);
+        $editor->shouldBeAnInstanceOf(MessageEditor::class);
         $editor->briefedVersion()->shouldBe($version);
     }
 
@@ -146,36 +145,20 @@ class ChiefEditorSpec extends ObjectBehavior
             ->during('appointEditor', [new Version('foo')]);
     }
 
-    function it_speaks_to_an_editor_provider_to_appoint_an_specialised_routing_editor(
+    function it_speaks_to_an_editor_provider_to_appoint_an_specialised_editor(
         EditorProvider $editorProvider,
-        RoutingEditorInterface $routingEditor
+        EditorInterface $specialisedEditor
     ) {
         // Arrange
         $editorProvider->provideEditor(Argument::any())
-            ->willReturn($routingEditor);
+            ->willReturn($specialisedEditor);
 
         // Act
         $editor = $this->speakTo($editorProvider)
             ->appointEditor(new Version('foo'));
 
         // Assert
-        $editor->shouldBe($routingEditor);
-    }
-
-    function it_speaks_to_an_editor_provider_to_appoint_an_specialised_message_editor(
-        EditorProvider $editorProvider,
-        MessageEditorInterface $messageEditor
-    ) {
-        // Arrange
-        $editorProvider->provideEditor(Argument::any())
-            ->willReturn($messageEditor);
-
-        // Act
-        $editor = $this->speakTo($editorProvider)
-            ->appointEditor(new Version('foo'));
-
-        // Assert
-        $editor->shouldBe($messageEditor);
+        $editor->shouldBe($specialisedEditor);
     }
 
     private static function createRevisionDefinition(Collaborator $revision): RevisionDefinition

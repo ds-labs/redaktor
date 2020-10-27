@@ -6,10 +6,10 @@ namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\Department\EditorDepartment;
+use DSLabs\Redaktor\Department\MessageDepartment;
 use DSLabs\Redaktor\Department\EditorProvider;
-use DSLabs\Redaktor\Editor\MessageEditorInterface;
-use DSLabs\Redaktor\Editor\RoutingEditorInterface;
+use DSLabs\Redaktor\Editor\MessageEditor;
+use DSLabs\Redaktor\Editor\RoutingEditor;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
@@ -41,7 +41,7 @@ final class ChiefEditor implements ChiefEditorInterface
     ) {
         $this->registry = $registry;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
-        $this->editorProvider = new EditorDepartment();
+        $this->editorProvider = new MessageDepartment();
     }
 
     /**
@@ -57,7 +57,7 @@ final class ChiefEditor implements ChiefEditorInterface
     /**
      * Appoint an editor for the given $version to carry out the work.
      *
-     * @return RoutingEditorInterface|MessageEditorInterface
+     * @return RoutingEditor|MessageEditor
      */
     public function appointEditor(Version $version): EditorInterface
     {

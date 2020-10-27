@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Editor\Brief;
-use DSLabs\Redaktor\Editor\Editor;
+use DSLabs\Redaktor\Editor\MessageEditor;
 use DSLabs\Redaktor\Editor\RequestUnaware;
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
@@ -19,9 +19,9 @@ use spec\DSLabs\Redaktor\Double\DummyRequest;
 use spec\DSLabs\Redaktor\Double\DummyResponse;
 
 /**
- * @see Editor
+ * @see MessageEditor
  */
-class EditorSpec extends ObjectBehavior
+class MessageEditorSpec extends ObjectBehavior
 {
     function it_retrieves_the_briefed_version()
     {
@@ -216,29 +216,6 @@ class EditorSpec extends ObjectBehavior
             ->shouldBe($revisedResponse);
     }
 
-    function it_passes_the_routes_through_all_routing_revisions(
-        RoutingRevision $routingRevisionA,
-        RoutingRevision $routingRevisionB
-    ) {
-        // Arrange
-        $brief = self::createBrief(
-            new Version('foo'),
-            [$routingRevisionA, $routingRevisionB]
-        );
-        $this->beConstructedWith($brief);
-        $routingRevisionA->__invoke(Argument::any())->willReturn($routesAfterRevisionA = ['foo']);
-        $routingRevisionB->__invoke(Argument::any())->willReturn($routesAfterRevisionB = ['foo', 'bar']);
-
-        // Act
-        $revisedRoutes = $this->reviseRouting($originalRoutes = []);
-
-        // Assert
-        $routingRevisionA->__invoke($originalRoutes)->shouldHaveBeenCalled();
-        $routingRevisionB->__invoke($routesAfterRevisionA)->shouldHaveBeenCalled();
-
-        $revisedRoutes->shouldBe($routesAfterRevisionB);
-    }
-
     function it_ignores_routing_revisions_while_revising_the_request(
         RoutingRevision $routingRevision
     ) {
@@ -274,42 +251,6 @@ class EditorSpec extends ObjectBehavior
 
         // Assert
         $routingRevision->__invoke(Argument::any())->shouldNotHaveBeenCalled();
-    }
-
-    function it_ignores_request_revisions_while_revising_the_routing(
-        RequestRevision $requestRevision
-    ) {
-        // Arrange
-        $this->beConstructedWith(
-            self::createBrief(
-                new Version('foo'),
-                [$requestRevision]
-            )
-        );
-
-        // Act
-        $this->reviseRouting([]);
-
-        // Assert
-        $requestRevision->isApplicable(Argument::any())->shouldNotHaveBeenCalled();
-    }
-
-    function it_ignores_response_revisions_while_revising_the_routing(
-        ResponseRevision $responseRevision
-    ) {
-        // Arrange
-        $this->beConstructedWith(
-            self::createBrief(
-                new Version('foo'),
-                [$responseRevision]
-            )
-        );
-
-        // Act
-        $this->reviseRouting([]);
-
-        // Assert
-        $responseRevision->isApplicable(Argument::any())->shouldNotHaveBeenCalled();
     }
 
     function it_ignores_applicable_response_revisions_while_revising_the_request(

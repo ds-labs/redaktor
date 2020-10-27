@@ -6,13 +6,12 @@ namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
-use DSLabs\Redaktor\Revision\RoutingRevision;
 use DSLabs\Redaktor\Version\Version;
 
 /**
- * Given a Brief is able to revise the application routes, request and/or response.
+ * Given a Brief is able to revise the request and response from/to the briefed version.
  */
-final class Editor implements RoutingEditorInterface, MessageEditorInterface
+final class MessageEditor implements MessageEditorInterface
 {
     /**
      * @var Brief
@@ -54,23 +53,9 @@ final class Editor implements RoutingEditorInterface, MessageEditorInterface
     /**
      * @inheritDoc
      */
-    public function reviseRouting(iterable $routes): iterable
-    {
-        foreach ($this->brief->revisions() as $revision) {
-            if ($revision instanceof RoutingRevision) {
-                $routes = $revision($routes);
-            }
-        }
-
-        return $routes;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function reviseRequest(object $request): object
     {
-        $revisions = array_filter($this->brief->revisions(), static function ($revision): bool {
+        $revisions = array_filter($this->briefedRevisions(), static function ($revision): bool {
             return $revision instanceof RequestRevision
                 || $revision instanceof ResponseRevision;
         });
