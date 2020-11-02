@@ -10,5 +10,5 @@ final class DummyResponseRevision implements ResponseRevision
 {
     public function isApplicable(object $request): bool { }
 
-    public function applyToResponse(object $response, object $request): object { }
+    public function applyToResponse(object $request, object $response): object { }
 }

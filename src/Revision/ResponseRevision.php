@@ -13,5 +13,5 @@ interface ResponseRevision extends Revision
      * Apply revision to the given response.
      * An instance of the request revised up to this point is passed in for convenience.
      */
-    public function applyToResponse(object $response, object $request): object;
+    public function applyToResponse(object $request, object $response): object;
 }

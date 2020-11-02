@@ -340,7 +340,7 @@ class MessageEditorSpec extends ObjectBehavior
         $this->reviseResponse($originalResponse = new DummyResponse());
 
         // Assert
-        $responseRevision->applyToResponse($originalResponse, $originalRequest)->shouldHaveBeenCalled();
+        $responseRevision->applyToResponse($originalRequest, $originalResponse)->shouldHaveBeenCalled();
     }
 
     /**
@@ -378,8 +378,8 @@ class MessageEditorSpec extends ObjectBehavior
         $this->reviseResponse(new DummyResponse());
 
         // Assert
-        $responseRevisionA->applyToResponse(Argument::any(), $originalRequest)->shouldHaveBeenCalled();
-        $responseRevisionB->applyToResponse(Argument::any(), $revisedRequest)->shouldHaveBeenCalled();
+        $responseRevisionA->applyToResponse($originalRequest, Argument::any())->shouldHaveBeenCalled();
+        $responseRevisionB->applyToResponse($revisedRequest, Argument::any())->shouldHaveBeenCalled();
     }
 
     /**

@@ -109,7 +109,7 @@ final class MessageEditor implements MessageEditorInterface
                 /** @var ResponseRevision $revision */
                 $revision = $note['revision'];
 
-                return $revision->applyToResponse($response, $note['request']);
+                return $revision->applyToResponse($note['request'], $response);
             },
             $response
         );
