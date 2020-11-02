@@ -16,7 +16,7 @@ use spec\DSLabs\Redaktor\Double\Revision\DummyRevision;
 /**
  * @see PSR11RevisionResolver
  */
-final class PSR11RevisionResolverSpec extends ObjectBehavior
+class PSR11RevisionResolverSpec extends ObjectBehavior
 {
     function let(ContainerInterface $container)
     {
