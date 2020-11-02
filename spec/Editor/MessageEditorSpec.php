@@ -183,11 +183,11 @@ class MessageEditorSpec extends ObjectBehavior
         ResponseRevision $responseRevision
     ) {
         // Arrange
-        $responseRevision->isApplicable($originalRequest = new DummyRequest())->willReturn(false);
+        $responseRevision->isApplicable(Argument::any())->willReturn(false);
         $this->beConstructedWith(
             self::createBrief(new Version('foo'), [$responseRevision])
         );
-        $this->reviseRequest($originalRequest);
+        $this->reviseRequest(new DummyRequest());
 
         // Act
         $this->reviseResponse($originalResponse = new DummyResponse())
@@ -200,7 +200,7 @@ class MessageEditorSpec extends ObjectBehavior
         ResponseRevision $responseRevisionB
     ) {
         // Arrange
-        $responseRevisionA->isApplicable(Argument::cetera())->willReturn(false);
+        $responseRevisionA->isApplicable(Argument::any())->willReturn(false);
 
         $responseRevisionB->isApplicable(Argument::any())->willReturn(true);
         $responseRevisionB->applyToResponse(Argument::cetera())->willReturn($revisedResponse = new DummyResponse());
@@ -288,10 +288,16 @@ class MessageEditorSpec extends ObjectBehavior
         );
         $this->reviseRequest(new DummyRequest());
 
+        // Pre-act assertion
+        $requestRevision->applyToRequest(Argument::any())
+            ->shouldHaveBeenCalled();
+
         // Act
-        $this->shouldNotThrow(\Throwable::class)
-            // Assert
-            ->during('reviseResponse', [new DummyResponse()]);
+        $this->reviseResponse(new DummyResponse());
+
+        // Assert
+        $requestRevision->applyToRequest(Argument::any())
+            ->shouldHaveBeenCalledOnce(); // Called only during `reviseRequest()`
     }
 
     function it_applies_applicable_request_revisions_to_the_request(
