@@ -15,7 +15,6 @@ use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
 use DSLabs\Redaktor\Registry\SimpleRevisionResolver;
 use DSLabs\Redaktor\Revision\Revision;
-use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\Version;
 
 final class ChiefEditor implements ChiefEditorInterface
@@ -73,13 +72,9 @@ final class ChiefEditor implements ChiefEditorInterface
     {
         $revisionsDefinitions = $this->registry->retrieveSince($version);
 
-        $revisions = self::filterRevisions(
-            $this->open($revisionsDefinitions)
-        );
-
         return new Brief(
             $version,
-            $revisions
+            $this->open($revisionsDefinitions)
         );
     }
 
@@ -94,39 +89,5 @@ final class ChiefEditor implements ChiefEditorInterface
 
             return $this->revisionResolver->resolve($revisionDefinition);
         }, $revisionDefinitions);
-    }
-
-    /**
-     * @param Revision[] $revisions
-     *
-     * @return Revision[]
-     */
-    private static function filterRevisions(array $revisions): array
-    {
-        if (empty($revisions)) {
-            return $revisions;
-        }
-
-        $initialRevision = array_shift($revisions);
-        // @todo Ensure `$initialRevision` does not implement `Supersedes` interface.
-        return array_reduce(
-            $revisions,
-            static function (array $squashedRevisions, Revision $currentRevision): array {
-
-                if ($currentRevision instanceof Supersedes
-                    && $currentRevision->supersedes(
-                        // Previous Revision
-                        $squashedRevisions[count($squashedRevisions)-1]
-                    )
-                ) {
-                    array_pop($squashedRevisions);
-                }
-
-                $squashedRevisions[] = $currentRevision;
-
-                return $squashedRevisions;
-            },
-            [$initialRevision]
-        );
     }
 }

@@ -13,7 +13,6 @@ use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
 use DSLabs\Redaktor\Registry\UnableToResolveRevisionDefinition;
 use DSLabs\Redaktor\Revision\Revision;
-use DSLabs\Redaktor\Revision\Supersedes;
 use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 use PhpSpec\Wrapper\Collaborator;
@@ -69,37 +68,6 @@ class ChiefEditorSpec extends ObjectBehavior
         $editor->briefedRevisions()->shouldBe([
             $revisionA,
             $revisionB,
-        ]);
-    }
-
-    function it_discards_superseded_revisions(
-        Registry $registry,
-        Revision $supersededRevision,
-        Revision $supersederRevision,
-        RevisionResolver $revisionResolver
-    ) {
-        // Arrange
-        $this->beConstructedWith(
-            $registry,
-            $revisionResolver
-        );
-
-        $supersederRevision->implement(Supersedes::class);
-        $supersederRevision->supersedes(Argument::any())->willReturn(true);
-
-        $registry->retrieveSince(Argument::any())->willReturn([
-            self::createRevisionDefinition($supersederRevision),
-            self::createRevisionDefinition($supersededRevision),
-        ]);
-
-        $revisionResolver->resolve(Argument::any())->willReturn($supersededRevision, $supersederRevision);
-
-        // Act
-        $editor = $this->appointEditor(new Version('foo'));
-
-        // Assert
-        $editor->briefedRevisions()->shouldBe([
-            $supersederRevision,
         ]);
     }
 
