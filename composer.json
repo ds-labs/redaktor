@@ -1,7 +1,23 @@
 {
     "name": "ds-labs/redaktor",
-    "description": "Provide api revision to your api.",
+    "description": "Evolve your API while maintaining backwards compatibility.",
+    "type": "library",
+    "keywords": [
+        "api",
+        "versioning",
+        "rest",
+        "evolution",
+        "revision",
+        "redaktor"
+    ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "David Saavedra",
+            "email": "itsdavidsq@gmail.com",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php": "^7.2",
         "psr/container": "^1.0"
