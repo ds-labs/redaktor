@@ -12,3 +12,7 @@ Running all tests:
 ```sh
    composer test
 ```
+
+## License
+
+Redaktør is an open-source software licensed under the [MIT license](https://github.com/ds-labs/redaktor/blob/main/LICENSE.md).

@@ -1,6 +1,7 @@
 {
     "name": "ds-labs/redaktor",
     "description": "Provide api revision to your api.",
+    "license": "MIT",
     "require": {
         "php": "^7.2",
         "psr/container": "^1.0"
