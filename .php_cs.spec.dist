@@ -1,0 +1,24 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in('spec')
+    ->name('*.php')
+    ;
+
+$commonRules = require __DIR__ . '/.php_cs.rules.php';
+
+$rules =
+    array_merge(
+        $commonRules,
+        [
+            'visibility_required' => [
+                'elements' => [],
+            ],
+        ]
+    );
+
+return PhpCsFixer\Config::create()
+    ->setRules($rules)
+    ->setRiskyAllowed(true)
+    ->setFinder($finder)
+    ;

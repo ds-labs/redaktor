@@ -35,6 +35,9 @@
             "spec\\DSLabs\\Redaktor\\": "spec/"
         }
     },
+    "config": {
+        "sort-packages": true
+    },
     "scripts": {
         "test": "phpspec run --format=dot"
     }

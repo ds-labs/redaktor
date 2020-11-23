@@ -1,8 +1,0 @@
-version: "3"
-services:
-  php:
-    image: php:7.3.1-fpm-alpine3.8
-    volumes:
-      - .:/code
-    user: 1000:1000
-    working_dir: /code
