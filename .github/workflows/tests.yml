@@ -13,9 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ 7.2, 7.3 ]
+        php: [ 7.2, 7.3, 7.4, 8.0 ]
+        stability: [ prefer-stable, prefer-lowest ]
 
-    name: PHP ${{ matrix.php }}
+    name: PHP ${{ matrix.php }} [${{ matrix.stability }}]
 
     steps:
       - name: Update apt
@@ -36,9 +37,15 @@ jobs:
           path: ~/.composer/cache/files/
           key: composer
 
+      - name: Set minimum sub-dependencies version
+        run: |
+          composer require sebastian/comparator:^1.2.3 phpspec/prophecy:^1.9.1 --no-interaction --no-progress \
+            --prefer-dist --${{ matrix.stability }}
+        if: ${{ matrix.php >= 7.2 && matrix.php < 8 && matrix.stability == 'prefer-lowest' }}
+
       - name: Install dependencies
         run: |
-          composer update --no-interaction --no-progress --prefer-dist --prefer-stable
+          composer update --no-interaction --no-progress --prefer-dist --${{ matrix.stability }}
 
       - name: Run Tests
         run: composer test
