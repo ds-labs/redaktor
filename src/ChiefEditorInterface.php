@@ -2,8 +2,8 @@
 
 namespace DSLabs\Redaktor;
 
-use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Department\EditorProvider;
+use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Editor\MessageEditor;
 use DSLabs\Redaktor\Editor\RoutingEditor;
 use DSLabs\Redaktor\Version\Version;

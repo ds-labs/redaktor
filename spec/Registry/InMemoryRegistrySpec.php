@@ -83,8 +83,8 @@ class InMemoryRegistrySpec extends ObjectBehavior
         // Arrange
         $this->beConstructedWith([
             'foo' => [
-                static function() { },
-            ]
+                static function () { },
+            ],
         ]);
 
         // Assert
@@ -99,7 +99,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
         $this->beConstructedWith([
             'foo' => [
                 'bar',
-            ]
+            ],
         ]);
 
         // Assert
@@ -180,7 +180,6 @@ class InMemoryRegistrySpec extends ObjectBehavior
     {
         return [
             'matchRevisions' => static function ($versionDefinition, array $expectedRevisions): bool {
-
                 $actualRevisions = array_map(
                     static function ($revisionDefinition) {
                         return $revisionDefinition();
@@ -189,7 +188,7 @@ class InMemoryRegistrySpec extends ObjectBehavior
                 );
 
                 return $actualRevisions === $expectedRevisions;
-            }
+            },
         ];
     }
 }

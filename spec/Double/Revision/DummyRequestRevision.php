@@ -8,7 +8,11 @@ use DSLabs\Redaktor\Revision\RequestRevision;
 
 final class DummyRequestRevision implements RequestRevision
 {
-    public function isApplicable(object $request): bool { }
+    public function isApplicable(object $request): bool
+    {
+    }
 
-    public function applyToRequest(object $request): object { }
+    public function applyToRequest(object $request): object
+    {
+    }
 }

@@ -44,7 +44,7 @@ class RoutingEditorSpec extends ObjectBehavior
             self::createBrief(
                 new Version('foo'),
                 $briefedRevisions = [
-                    $revision
+                    $revision,
                 ]
             )
         );
@@ -120,7 +120,7 @@ class RoutingEditorSpec extends ObjectBehavior
      */
     private static function createBrief(Version $version, array $revisions): Brief
     {
-        $revisions = array_map(static function(Collaborator $revision) {
+        $revisions = array_map(static function (Collaborator $revision) {
             return $revision->getWrappedObject();
         }, $revisions);
 

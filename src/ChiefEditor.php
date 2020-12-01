@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor;
 
+use DSLabs\Redaktor\Department\EditorProvider;
+use DSLabs\Redaktor\Department\MessageDepartment;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
-use DSLabs\Redaktor\Department\MessageDepartment;
-use DSLabs\Redaktor\Department\EditorProvider;
 use DSLabs\Redaktor\Editor\MessageEditor;
 use DSLabs\Redaktor\Editor\RoutingEditor;
 use DSLabs\Redaktor\Registry\Registry;
@@ -86,7 +86,6 @@ final class ChiefEditor implements ChiefEditorInterface
     private function open(array $revisionDefinitions): array
     {
         return array_map(function (RevisionDefinition $revisionDefinition): Revision {
-
             return $this->revisionResolver->resolve($revisionDefinition);
         }, $revisionDefinitions);
     }

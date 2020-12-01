@@ -49,7 +49,6 @@ final class Brief
     {
         foreach ($revisions as $revision) {
             if (!$revision instanceof Revision) {
-
                 $type = is_object($revision)
                     ? get_class($revision)
                     : gettype($revision);

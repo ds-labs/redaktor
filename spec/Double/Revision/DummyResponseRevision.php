@@ -8,7 +8,11 @@ use DSLabs\Redaktor\Revision\ResponseRevision;
 
 final class DummyResponseRevision implements ResponseRevision
 {
-    public function isApplicable(object $request): bool { }
+    public function isApplicable(object $request): bool
+    {
+    }
 
-    public function applyToResponse(object $request, object $response): object { }
+    public function applyToResponse(object $request, object $response): object
+    {
+    }
 }

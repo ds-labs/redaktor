@@ -6,5 +6,6 @@ namespace spec\DSLabs\Redaktor\Double\Revision;
 
 use DSLabs\Redaktor\Revision\Revision;
 
-final class DummyRevision implements Revision {
+final class DummyRevision implements Revision
+{
 }

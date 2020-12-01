@@ -66,7 +66,8 @@ class PSR11RevisionResolverSpec extends ObjectBehavior
         ContainerInterface $container
     ) {
         // Arrange
-        $exception = new class extends \Exception implements NotFoundExceptionInterface {};
+        $exception = new class() extends \Exception implements NotFoundExceptionInterface {
+        };
         $container->get(Argument::any())->willThrow($exception);
         $definition = new RevisionDefinition(DummyRevision::class);
 
@@ -80,7 +81,8 @@ class PSR11RevisionResolverSpec extends ObjectBehavior
         ContainerInterface $container
     ) {
         // Arrange
-        $exception = new class extends \Exception implements ContainerExceptionInterface {};
+        $exception = new class() extends \Exception implements ContainerExceptionInterface {
+        };
         $container->get(Argument::any())->willThrow($exception);
         $definition = new RevisionDefinition(DummyRevision::class);
 

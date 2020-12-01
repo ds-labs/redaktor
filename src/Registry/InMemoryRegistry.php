@@ -84,7 +84,6 @@ final class InMemoryRegistry implements Registry
 
                 return array_map(
                     static function ($revisionDefinition): RevisionDefinition {
-
                         return new RevisionDefinition($revisionDefinition);
                     },
                     $versionDefinition

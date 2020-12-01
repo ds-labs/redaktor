@@ -20,7 +20,7 @@ class RoutingDepartmentSpec extends ObjectBehavior
         $brief = new Brief(
             $version = new Version('foo'),
             $revisions = [
-                $revision->getWrappedObject()
+                $revision->getWrappedObject(),
             ]
         );
 

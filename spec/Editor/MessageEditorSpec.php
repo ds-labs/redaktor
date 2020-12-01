@@ -47,7 +47,7 @@ class MessageEditorSpec extends ObjectBehavior
             self::createBrief(
                 new Version('foo'),
                 $briefedRevisions = [
-                    $revision
+                    $revision,
                 ]
             )
         );
@@ -134,7 +134,7 @@ class MessageEditorSpec extends ObjectBehavior
                 new Version('foo'),
                 [
                     $requestRevisionA,
-                    $requestRevisionB
+                    $requestRevisionB,
                 ]
             )
         );
@@ -148,7 +148,7 @@ class MessageEditorSpec extends ObjectBehavior
         $requestRevisionA->applyToRequest($originalRequest)->shouldHaveBeenCalled();
         $requestRevisionB->applyToRequest($revisedRequestA)->shouldHaveBeenCalled();
     }
-    
+
     function it_throws_an_exception_when_revising_the_response_without_having_previously_revised_the_request()
     {
         // Arrange
@@ -388,7 +388,7 @@ class MessageEditorSpec extends ObjectBehavior
      */
     private static function createBrief(Version $version, array $revisions): Brief
     {
-        $revisions = array_map(static function(Collaborator $revision) {
+        $revisions = array_map(static function (Collaborator $revision) {
             return $revision->getWrappedObject();
         }, $revisions);
 

@@ -8,5 +8,7 @@ use DSLabs\Redaktor\Revision\RoutingRevision;
 
 final class DummyRoutingRevision implements RoutingRevision
 {
-    public function __invoke(iterable $routes): iterable { }
+    public function __invoke(iterable $routes): iterable
+    {
+    }
 }

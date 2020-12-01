@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace spec\DSLabs\Redaktor;
 
 use DSLabs\Redaktor\ChiefEditor;
+use DSLabs\Redaktor\Department\EditorProvider;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Editor\MessageEditor;
-use DSLabs\Redaktor\Department\EditorProvider;
 use DSLabs\Redaktor\Registry\Registry;
 use DSLabs\Redaktor\Registry\RevisionDefinition;
 use DSLabs\Redaktor\Registry\RevisionResolver;
