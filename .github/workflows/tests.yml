@@ -19,9 +19,6 @@ jobs:
     name: PHP ${{ matrix.php }} [${{ matrix.stability }}]
 
     steps:
-      - name: Update apt
-        run: sudo apt-get update
-
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -31,11 +28,16 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
 
-      - name: Cache packages
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.composer/cache/files/
-          key: composer
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Set minimum sub-dependencies version
         run: |
