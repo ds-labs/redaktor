@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DSLabs\Redaktor;
 
 use DSLabs\Redaktor\Department\EditorProvider;
-use DSLabs\Redaktor\Department\MessageDepartment;
+use DSLabs\Redaktor\Department\GenericMessageDepartment;
 use DSLabs\Redaktor\Editor\Brief;
 use DSLabs\Redaktor\Editor\EditorInterface;
 use DSLabs\Redaktor\Editor\MessageEditor;
@@ -40,7 +40,7 @@ final class ChiefEditor implements ChiefEditorInterface
     ) {
         $this->registry = $registry;
         $this->revisionResolver = $revisionResolver ?? new SimpleRevisionResolver();
-        $this->editorProvider = new MessageDepartment();
+        $this->editorProvider = new GenericMessageDepartment();
     }
 
     /**
