@@ -176,6 +176,39 @@ class InMemoryRegistrySpec extends ObjectBehavior
             ->duringInstantiation();
     }
 
+    function it_retrieves_an_empty_list_of_available_versions()
+    {
+        // Act
+        $versions = $this->index();
+
+        // Assert
+        $versions->shouldBe([]);
+    }
+
+    function it_retrieves_a_list_of_available_versions()
+    {
+        // Arrange
+        $this->beConstructedWith([
+            'foo' => [
+                static function () {},
+            ],
+            'bar' => [
+                static function () {},
+            ],
+        ]);
+
+        // Act
+        $versions = $this->index();
+
+        // Assert
+        $versions->shouldHaveCount(2);
+        $versions->shouldBeArray();
+        $versions->shouldIterateLike([
+            new Version('foo'),
+            new Version('bar'),
+        ]);
+    }
+
     public function getMatchers(): array
     {
         return [

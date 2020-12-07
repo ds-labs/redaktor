@@ -30,6 +30,25 @@ class ChiefEditorSpec extends ObjectBehavior
         $this->beConstructedWith($registry);
     }
 
+    function it_queries_the_registry_index_to_list_all_versions(
+        Registry $registry
+    ) {
+        // Arrange
+        $registry->index()
+            ->willReturn($index = [
+                new Version('foo'),
+                new Version('bar'),
+            ]);
+
+        // Act
+        $versions = $this->listVersions();
+
+        // Assert
+        $versions->shouldBeArray();
+        $versions->shouldHaveCount(2);
+        $versions->shouldBe($index);
+    }
+
     function it_appoints_a_message_editor_by_default()
     {
         // Act

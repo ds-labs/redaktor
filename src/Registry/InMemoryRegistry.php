@@ -41,6 +41,19 @@ final class InMemoryRegistry implements Registry
     }
 
     /**
+     * @inheritDoc
+     */
+    public function index(): array
+    {
+        return array_map(
+            static function (string $version) {
+                return new Version($version);
+            },
+            array_keys($this->versionsDefinition)
+        );
+    }
+
+    /**
      * Retrieves a collection of all registered revision definitions.
      *
      * @return RevisionDefinition[]

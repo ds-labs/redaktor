@@ -44,6 +44,14 @@ final class ChiefEditor implements ChiefEditorInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function listVersions(): array
+    {
+        return $this->registry->index();
+    }
+
+    /**
      * Get in touch with an editor provider, who will provide an specialised editor.
      */
     public function speakTo(EditorProvider $editorProvider): ChiefEditorInterface

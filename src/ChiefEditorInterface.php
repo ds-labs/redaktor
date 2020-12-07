@@ -11,6 +11,13 @@ use DSLabs\Redaktor\Version\Version;
 interface ChiefEditorInterface
 {
     /**
+     * List all available versions.
+     *
+     * @return Version[]
+     */
+    public function listVersions(): array;
+
+    /**
      * Get in touch with an editor provider.
      */
     public function speakTo(EditorProvider $editorProvider): self;

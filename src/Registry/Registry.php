@@ -7,6 +7,13 @@ use DSLabs\Redaktor\Version\Version;
 interface Registry
 {
     /**
+     * Retrieves the list of available versions.
+     *
+     * @return Version[]
+     */
+    public function index(): array;
+
+    /**
      * Retrieves a collection of all registered revision definitions.
      *
      * @return RevisionDefinition[]
