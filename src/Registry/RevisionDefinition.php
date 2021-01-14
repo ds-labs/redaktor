@@ -49,9 +49,7 @@ final class RevisionDefinition
             return self::wrapInClosure($definition);
         }
 
-        if (
-            is_string($definition)
-        ) {
+        if (is_string($definition)) {
             return self::wrapInClosure($definition);
         }
 

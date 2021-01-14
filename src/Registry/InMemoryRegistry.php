@@ -20,17 +20,11 @@ final class InMemoryRegistry implements Registry
      * Receives a list of revisions indexed by its version. Expected format:
      * [
      *      '2020-02-23' => [
-     *          static function () {
-     *              return new RenameResourceRevision();
-     *          },
-     *          static function () {
-     *              return new GzipCompressionRevision();
-     *          },
+     *          ConvertActiveToActivatedAtRevision::class,
+     *          ReplaceAgeByDateOfBirthRevision::class,
      *      ],
      *      '2020-03-13' => [
-     *          static function () {
-     *              return new RemoveResourceRevision();
-     *          },
+     *          RemoveResourceRevision::class,
      *      ]
      * ]
      */
