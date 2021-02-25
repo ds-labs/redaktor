@@ -2,15 +2,30 @@
 
 namespace spec\DSLabs\Redaktor\Version;
 
+use DSLabs\Redaktor\Exception\InvalidArgumentException;
 use DSLabs\Redaktor\Version\Version;
 use PhpSpec\ObjectBehavior;
 
+/**
+ * @see Version
+ */
 class VersionSpec extends ObjectBehavior
 {
-    public function let()
+    function let()
+    {
+        // Reset Version static properties, so they don't interfere between scenarios.
+        self::resetInstance();
+    }
+
+    function it_throws_an_exception_when_initialised_with_a_non_string()
     {
         // Arrange
         $this->beConstructedWith('');
+
+        // Assert
+        $this->shouldThrow(InvalidArgumentException::class)
+            // Act
+            ->during('setList', [[123]]);
     }
 
     function it_casts_to_string()
@@ -52,6 +67,17 @@ class VersionSpec extends ObjectBehavior
         $this->isBefore(new Version('foo'))
             // Assert
             ->shouldBe(false);
+    }
+
+    function it_throws_an_error_when_calling_isBefore_before_initialising_the_version_list()
+    {
+        // Arrange
+        $this->beConstructedWith('foo');
+
+        // Assert
+        $this->shouldThrow(\RuntimeException::class)
+            // Act
+            ->during('isBefore', [new Version('foo')]);
     }
 
     function it_is_same_when_calling_same_or_before()
@@ -96,6 +122,18 @@ class VersionSpec extends ObjectBehavior
         $this->isSameOrBefore(new Version('bar'))
             // Assert
             ->shouldBe(true);
+    }
+
+
+    function it_throws_an_error_when_calling_isSameOrBefore_before_initialising_the_version_list()
+    {
+        // Arrange
+        $this->beConstructedWith('foo');
+
+        // Assert
+        $this->shouldThrow(\RuntimeException::class)
+            // Act
+            ->during('isSameOrBefore', [new Version('foo')]);
     }
 
     function it_is_same()
@@ -159,6 +197,17 @@ class VersionSpec extends ObjectBehavior
             ->shouldBe(false);
     }
 
+    function it_throws_an_error_when_calling_isAfter_before_initialising_the_version_list()
+    {
+        // Arrange
+        $this->beConstructedWith('foo');
+
+        // Assert
+        $this->shouldThrow(\RuntimeException::class)
+            // Act
+            ->during('isAfter', [new Version('foo')]);
+    }
+
     function it_is_same_when_calling_same_or_after()
     {
         // Arrange
@@ -203,6 +252,17 @@ class VersionSpec extends ObjectBehavior
             ->shouldBe(true);
     }
 
+    function it_throws_an_error_when_calling_isSameOrAfter_before_initialising_the_version_list()
+    {
+        // Arrange
+        $this->beConstructedWith('foo');
+
+        // Assert
+        $this->shouldThrow(\RuntimeException::class)
+            // Act
+            ->during('isSameOrAfter', [new Version('foo')]);
+    }
+
     function it_resets_the_list()
     {
         // Arrange
@@ -223,5 +283,22 @@ class VersionSpec extends ObjectBehavior
             ->shouldReturn(true);
         $this->isBefore(new Version('quz'))
             ->shouldReturn(true);
+    }
+
+    /*
+     * Workaround to reset the static properties.
+     */
+    private static function resetInstance(): void
+    {
+        self::resetStaticProperty('list', []);
+        self::resetStaticProperty('initialised', false);
+    }
+
+    private static function resetStaticProperty(string $name, $value): void
+    {
+        $listProperty = (new \ReflectionClass(Version::class))->getProperty($name);
+        $listProperty->setAccessible(true);
+        $listProperty->setValue($value);
+        $listProperty->setAccessible(false);
     }
 }

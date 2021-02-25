@@ -4,25 +4,36 @@ declare(strict_types=1);
 
 namespace DSLabs\Redaktor\Version;
 
+use DSLabs\Redaktor\Exception\InvalidArgumentException;
+
 final class Version
 {
     /**
      * @var self[]
      */
-    private static $available = [];
+    private static $list = [];
+
+    /**
+     * @var bool
+     */
+    private static $initialised = false;
 
     /**
      * @var string
      */
     private $version;
 
+    /**
+     * @internal
+     *
+     * @version string[]
+     */
     public static function setList(array $versions): void
     {
-        self::$available = [];
+        self::guardAgainstInvalidVersionNames($versions);
 
-        foreach ($versions as $version) {
-            self::$available[] = new self($version);
-        }
+        self::$list = $versions;
+        self::$initialised = true;
     }
 
     public function __construct(string $version)
@@ -32,11 +43,15 @@ final class Version
 
     public function isBefore(Version $version): bool
     {
+        self::guardAgainstUninitialised();
+
         return self::distanceBetweenVersions($this, $version) > 0;
     }
 
     public function isSameOrBefore(Version $version): bool
     {
+        self::guardAgainstUninitialised();
+
         return self::distanceBetweenVersions($this, $version) >= 0;
     }
 
@@ -47,11 +62,15 @@ final class Version
 
     public function isAfter(Version $version): bool
     {
+        self::guardAgainstUninitialised();
+
         return self::distanceBetweenVersions($this, $version) < 0;
     }
 
     public function isSameOrAfter(Version $version): bool
     {
+        self::guardAgainstUninitialised();
+
         return self::distanceBetweenVersions($this, $version) <= 0;
     }
 
@@ -60,10 +79,26 @@ final class Version
         return $this->version;
     }
 
+    public static function guardAgainstInvalidVersionNames(array $versions): void
+    {
+        foreach ($versions as $version) {
+            if (!is_string($version)) {
+                throw new InvalidArgumentException(['string'], $version);
+            }
+        }
+    }
+
+    public static function guardAgainstUninitialised(): void
+    {
+        if (!self::$initialised) {
+            throw new \RuntimeException();
+        }
+    }
+
     private static function distanceBetweenVersions(Version $actual, Version $other): int
     {
-        $indexOther = array_search($other, self::$available, false);
-        $indexActual = array_search($actual, self::$available, false);
+        $indexOther = array_search((string)$other, self::$list, true);
+        $indexActual = array_search((string)$actual, self::$list, true);
 
         return $indexOther - $indexActual;
     }
