@@ -32,6 +32,10 @@ final class InMemoryRegistry implements Registry
         array $versionsDefinition = []
     ) {
         $this->versionsDefinition = self::instantiateRevisionDefinitions($versionsDefinition);
+
+        Version::setList(
+            array_keys($this->versionsDefinition)
+        );
     }
 
     /**
@@ -84,7 +88,7 @@ final class InMemoryRegistry implements Registry
     private static function instantiateRevisionDefinitions(array $versionsDefinition): array
     {
         $values = array_map(
-            static function ($versionDefinition, $version): array {
+            static function (array $versionDefinition, string $version): array {
                 if (!$versionDefinition) {
                     throw InvalidVersionDefinitionException::empty($version);
                 }

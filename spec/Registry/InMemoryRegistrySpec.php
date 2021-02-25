@@ -209,6 +209,25 @@ class InMemoryRegistrySpec extends ObjectBehavior
         ]);
     }
 
+    function it_initialises_the_global_list_of_versions()
+    {
+        // Act
+        $this->beConstructedWith([
+            'foo' => [
+                static function () {},
+            ],
+            'bar' => [
+                static function () {},
+            ],
+        ]);
+        $this->index(); // Required for phpspec to instantiate the class when run individually.
+
+        // Assert (workaround)
+        assert((new Version('foo'))->isSame(new Version('foo')));
+        assert((new Version('foo'))->isBefore(new Version('bar')));
+        assert((new Version('bar'))->isAfter(new Version('foo')));
+    }
+
     public function getMatchers(): array
     {
         return [
