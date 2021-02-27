@@ -6,6 +6,7 @@ namespace DSLabs\Redaktor\Editor;
 
 use DSLabs\Redaktor\Revision\RequestRevision;
 use DSLabs\Redaktor\Revision\ResponseRevision;
+use DSLabs\Redaktor\Revision\Revision;
 use DSLabs\Redaktor\Version\Version;
 
 /**
@@ -55,14 +56,11 @@ final class MessageEditor implements MessageEditorInterface
      */
     public function reviseRequest(object $request): object
     {
-        $revisions = array_filter($this->briefedRevisions(), static function ($revision): bool {
-            return $revision instanceof RequestRevision
-                || $revision instanceof ResponseRevision;
-        });
+        $revisions = self::pickRelevantRevisions($this->briefedRevisions());
 
         $upToDateRequest = array_reduce(
             $revisions,
-            function (object $request, object $revision): object {
+            function (object $request, Revision $revision): object {
                 /** @var RequestRevision|ResponseRevision $revision */
                 if (!$revision->isApplicable($request)) {
                     return $request;
@@ -72,8 +70,10 @@ final class MessageEditor implements MessageEditorInterface
                     ? $revision->applyToRequest($request)
                     : $request;
 
-                // A `$revision` could be and instance of both `RequestRevision`
-                // and `ResponseRevision` at the same time.
+                /*
+                 * A `$revision` could be and instance of both `RequestRevision`
+                 * and `ResponseRevision` at the same time.
+                 */
                 if ($revision instanceof ResponseRevision) {
                     $this->notes[] = [
                         'revision' => $revision,
@@ -122,5 +122,19 @@ final class MessageEditor implements MessageEditorInterface
     private function markRequestAsRevised(): void
     {
         $this->requestIsRevised = true;
+    }
+
+    /**
+     * Pick the relevant revisions from the list of available ones.
+     *
+     * @param Revision[] $revisions
+     * @return RequestRevision|ResponseRevision[]
+     */
+    private static function pickRelevantRevisions(array $revisions): array
+    {
+        return array_filter($revisions, static function ($revision): bool {
+            return $revision instanceof RequestRevision
+                || $revision instanceof ResponseRevision;
+        });
     }
 }
